@@ -15,6 +15,7 @@ type Thinger struct {
 	lookY      float64
 	faceLeft   bool
 	faceUp     bool
+	lookUp     bool
 	originX    float64
 	originY    float64
 	walking    bool
@@ -50,6 +51,9 @@ func (t *Thinger) sortedSlices() []int {
 	if t.faceUp {
 		for i, j := 0, len(slices)-1; i < j; i, j = i+1, j-1 {
 			slices[i], slices[j] = slices[j], slices[i]
+		}
+		if !t.lookUp {
+			slices[0], slices[len(slices)-1] = slices[len(slices)-1], slices[0]
 		}
 	}
 	return slices

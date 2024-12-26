@@ -30,8 +30,10 @@ func (a *ActionLook) Apply(t *Thinger) {
 		}
 		if t.lookY < -0.4 {
 			t.faceUp = true
+			t.lookUp = true
 		} else {
 			t.faceUp = false
+			t.lookUp = false
 		}
 	}
 }
