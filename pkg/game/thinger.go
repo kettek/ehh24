@@ -14,6 +14,7 @@ type Thinger struct {
 	lookX      float64
 	lookY      float64
 	faceLeft   bool
+	faceUp     bool
 	originX    float64
 	originY    float64
 	walking    bool
@@ -41,9 +42,24 @@ func (t *Thinger) Update(ctx *DrawContext) error {
 	return nil
 }
 
+func (t *Thinger) sortedSlices() []int {
+	slices := make([]int, len(t.frame.Slices))
+	for i := range slices {
+		slices[i] = i
+	}
+	if t.faceUp {
+		for i, j := 0, len(slices)-1; i < j; i, j = i+1, j-1 {
+			slices[i], slices[j] = slices[j], slices[i]
+		}
+	}
+	return slices
+}
+
 func (t *Thinger) Draw(ctx *DrawContext) {
 	opts := &ebiten.DrawImageOptions{}
-	for i, slice := range t.frame.Slices {
+
+	for _, i := range t.sortedSlices() {
+		slice := t.frame.Slices[i]
 		opts.GeoM.Reset()
 
 		opts.GeoM.Translate(float64(t.stax.Stax.SliceWidth)*t.originX, float64(t.stax.Stax.SliceHeight)*t.originY)

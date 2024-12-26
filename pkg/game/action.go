@@ -28,6 +28,11 @@ func (a *ActionLook) Apply(t *Thinger) {
 		} else {
 			t.Animation("center")
 		}
+		if t.lookY < -0.4 {
+			t.faceUp = true
+		} else {
+			t.faceUp = false
+		}
 	}
 }
 
@@ -60,6 +65,7 @@ func (a *ActionMoveTo) Apply(t *Thinger) {
 		t.Animation("center")
 		t.walking = false
 		t.walkTicker = 0
+		t.faceUp = false
 		return
 	}
 	t.walking = true
@@ -68,6 +74,11 @@ func (a *ActionMoveTo) Apply(t *Thinger) {
 		t.Animation("left")
 	} else if dx > 0 {
 		t.Animation("right")
+	}
+	if dy < 0 {
+		t.faceUp = true
+	} else {
+		t.faceUp = false
 	}
 	t.X += dx / dist * a.Speed
 	t.Y += dy / dist * a.Speed * 0.6
