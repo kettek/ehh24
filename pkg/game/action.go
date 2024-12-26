@@ -14,9 +14,9 @@ func (a *ActionLook) Apply(t *Thinger) {
 	t.lookY = a.LookY
 
 	if a.ShouldFace {
-		if t.lookX < -0.1 {
+		if t.lookX < -0.4 {
 			t.Animation("left")
-		} else if t.lookX > 0.2 {
+		} else if t.lookX > 0.5 {
 			t.Animation("right")
 		} else {
 			t.Animation("center")

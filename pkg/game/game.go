@@ -2,9 +2,11 @@ package game
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
+	input "github.com/quasilyte/ebitengine-input"
 )
 
 type Game struct {
+	insys    input.System
 	thingers []*Thinger
 	geom     ebiten.GeoM
 	width    float64
@@ -12,6 +14,11 @@ type Game struct {
 }
 
 func NewGame() *Game {
+	g := &Game{}
+	g.insys.Init(input.SystemConfig{
+		DevicesEnabled: input.AnyDevice,
+	})
+	// Setup input system
 	// Make our lil cursor?
 	c := NewThinger("cursor")
 	c.controller = NewCursorController()
@@ -20,18 +27,20 @@ func NewGame() *Game {
 	ebiten.SetCursorMode(ebiten.CursorModeHidden)
 
 	t := NewThinger("test")
-	t.controller = NewPlayerController()
+	t.controller = NewPlayerController(&g.insys)
 	t.originX = -0.5
 	t.originY = -1
 	geom := ebiten.GeoM{}
 	geom.Scale(3, 3)
-	return &Game{
-		thingers: []*Thinger{t, c},
-		geom:     geom,
-	}
+
+	g.geom = geom
+	g.thingers = []*Thinger{t, c}
+
+	return g
 }
 
 func (g *Game) Update() error {
+	g.insys.Update()
 	for _, t := range g.thingers {
 		t.Update(&DrawContext{
 			Target: nil,
