@@ -13,7 +13,7 @@ func main() {
 		Exec("./ehh24")
 
 	Task("watch").
-		Watch("**/*.go").
+		Watch("**/*.go", "**/*.png").
 		Signaler(SigQuit).
 		Run("build").
 		Run("run")
