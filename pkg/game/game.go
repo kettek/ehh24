@@ -12,11 +12,21 @@ type Game struct {
 }
 
 func NewGame() *Game {
+	// Make our lil cursor?
+	c := NewThinger("cursor")
+	c.controller = NewCursorController()
+	c.originX = -0.5
+	c.originY = -0.5
+	ebiten.SetCursorMode(ebiten.CursorModeHidden)
+
 	t := NewThinger("test")
+	t.controller = NewPlayerController()
+	t.originX = -0.5
+	t.originY = -1
 	geom := ebiten.GeoM{}
 	geom.Scale(3, 3)
 	return &Game{
-		thingers: []*Thinger{t},
+		thingers: []*Thinger{t, c},
 		geom:     geom,
 	}
 }

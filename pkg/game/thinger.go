@@ -10,9 +10,12 @@ import (
 type Thinger struct {
 	Staxer
 	Positioner
-	lookX    float64
-	lookY    float64
-	faceLeft bool
+	controller Controller
+	lookX      float64
+	lookY      float64
+	faceLeft   bool
+	originX    float64
+	originY    float64
 }
 
 func NewThinger(name string) *Thinger {
@@ -26,18 +29,11 @@ func NewThinger(name string) *Thinger {
 }
 
 func (t *Thinger) Update(ctx *DrawContext) error {
-	x, y := ctx.MousePosition()
-	w, h := ctx.Size()
-
-	t.lookX = (x - t.X) / w
-	t.lookY = (y - t.Y) / h
-
-	if t.lookX < -0.2 {
-		t.faceLeft = true
-	} else if t.lookX > 0.2 {
-		t.faceLeft = false
+	if t.controller != nil {
+		for _, a := range t.controller.Update(ctx, t) {
+			a.Apply(t)
+		}
 	}
-
 	return nil
 }
 
@@ -46,7 +42,7 @@ func (t *Thinger) Draw(ctx *DrawContext) {
 	for i, slice := range t.frame.Slices {
 		opts.GeoM.Reset()
 
-		opts.GeoM.Translate(-float64(t.stax.Stax.SliceWidth)/2, -float64(t.stax.Stax.SliceHeight))
+		opts.GeoM.Translate(float64(t.stax.Stax.SliceWidth)*t.originX, float64(t.stax.Stax.SliceHeight)*t.originY)
 
 		if t.faceLeft {
 			opts.GeoM.Scale(-1, 1)
