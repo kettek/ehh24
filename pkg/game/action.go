@@ -58,8 +58,12 @@ func (a *ActionMoveTo) Apply(t *Thinger) {
 		t.Y = a.Y
 		a.done = true
 		t.Animation("center")
+		t.walking = false
+		t.walkTicker = 0
 		return
 	}
+	t.walking = true
+	t.walkTicker++
 	if dx < 0 {
 		t.Animation("left")
 	} else if dx > 0 {

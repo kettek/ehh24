@@ -5,13 +5,14 @@ import (
 	"github.com/kettek/ehh24/pkg/stax"
 )
 
-type StackLayer int
-
 const (
-	Base  StackLayer = 0
-	Heart            = 1
-	Head             = 2
-	Eyes             = 3
+	BackLeg = iota
+	BackArm
+	Heart
+	FrontLeg
+	FrontArm
+	Head
+	Eyes
 )
 
 type Staxer struct {
