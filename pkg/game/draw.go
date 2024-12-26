@@ -12,6 +12,17 @@ type DrawContext struct {
 func (d *DrawContext) MousePosition() (float64, float64) {
 	x, y := ebiten.CursorPosition()
 
+	if x < 0 {
+		x = 0
+	} else if x > int(d.Width) {
+		x = int(d.Width)
+	}
+	if y < 0 {
+		y = 0
+	} else if y > int(d.Height) {
+		y = int(d.Height)
+	}
+
 	scaleX := d.GeoM.Element(0, 0)
 	scaleY := d.GeoM.Element(1, 1)
 
