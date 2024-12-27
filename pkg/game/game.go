@@ -4,19 +4,20 @@ import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kettek/ehh24/pkg/game/context"
 	input "github.com/quasilyte/ebitengine-input"
 )
 
 type Game struct {
 	insys           input.System
-	updateDrawers   []UpdateDrawer
 	geom            ebiten.GeoM
 	midlay          *ebiten.Image
-	cursor          UpdateDrawer
+	cursor          Referable
 	darknessOverlay *DarknessOverlay
 
-	gctx GameContext
-	dctx DrawContext
+	referables Referables
+	gctx       context.Game
+	dctx       context.Draw
 }
 
 func NewGame() *Game {
@@ -51,7 +52,7 @@ func NewGame() *Game {
 	geom.Scale(3, 3)
 
 	g.geom = geom
-	g.updateDrawers = []UpdateDrawer{t, t1, t2}
+	g.referables = Referables{t, t1, t2}
 
 	g.gctx.Zoom = g.geom.Element(0, 0)
 
@@ -65,7 +66,7 @@ func (g *Game) Update() error {
 	g.insys.Update()
 
 	var changes []Change
-	for _, t := range g.updateDrawers {
+	for _, t := range g.referables.Updateables() {
 		changes = append(changes, t.Update(&g.gctx)...)
 	}
 
@@ -73,7 +74,7 @@ func (g *Game) Update() error {
 		c.Apply(g)
 	}
 
-	g.cursor.Update(&g.gctx)
+	g.cursor.(Updateable).Update(&g.gctx)
 	g.darknessOverlay.Update()
 
 	return nil
@@ -90,7 +91,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.midlay.Fill(color.NRGBA{20, 20, 20, 255})
 	g.darknessOverlay.Draw(&g.dctx)
 
-	for _, t := range g.updateDrawers {
+	for _, t := range g.referables.Drawables() {
 		t.Draw(&g.dctx)
 	}
 	op = &ebiten.DrawImageOptions{}
@@ -101,7 +102,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	screen.DrawImage(g.darknessOverlay.Image, op)
 
 	g.dctx.Target = screen
-	g.cursor.Draw(&g.dctx)
+	g.cursor.(Drawable).Draw(&g.dctx)
 }
 
 func (g *Game) Layout(ow, oh int) (int, int) {

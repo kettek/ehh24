@@ -1,11 +1,12 @@
 package game
 
 import (
+	"github.com/kettek/ehh24/pkg/game/context"
 	input "github.com/quasilyte/ebitengine-input"
 )
 
 type Controller interface {
-	Update(ctx *GameContext, t *Thinger) []Action
+	Update(ctx *context.Game, t *Thinger) []Action
 }
 
 type PlayerController struct {
@@ -38,7 +39,7 @@ func NewPlayerController(insys *input.System) *PlayerController {
 	return pc
 }
 
-func (p *PlayerController) Update(ctx *GameContext, t *Thinger) (a []Action) {
+func (p *PlayerController) Update(ctx *context.Game, t *Thinger) (a []Action) {
 	x, y := ctx.MousePosition()
 	w, h := ctx.Size()
 
@@ -46,8 +47,8 @@ func (p *PlayerController) Update(ctx *GameContext, t *Thinger) (a []Action) {
 		p.lastMouseX = x
 		p.lastMouseY = y
 		a = append(a, &ActionLook{
-			LookX:      (x - t.X) / w * 4,
-			LookY:      (y - t.Y) / h * 4,
+			LookX:      (x - t.X()) / w * 4,
+			LookY:      (y - t.Y()) / h * 4,
 			ShouldFace: true,
 		})
 	}
@@ -73,8 +74,8 @@ func (p *PlayerController) Update(ctx *GameContext, t *Thinger) (a []Action) {
 		}
 	} else if up != 0 || left != 0 {
 		p.action = &ActionMoveTo{
-			X:     t.X + left,
-			Y:     t.Y + up,
+			X:     t.X() + left,
+			Y:     t.Y() + up,
 			Speed: 0.4,
 		}
 	}
@@ -96,7 +97,7 @@ func NewCursorController() *CursorController {
 	return &CursorController{}
 }
 
-func (c *CursorController) Update(ctx *GameContext, t *Thinger) (a []Action) {
+func (c *CursorController) Update(ctx *context.Game, t *Thinger) (a []Action) {
 	x, y := ctx.MousePosition()
 
 	a = append(a, &ActionPosition{

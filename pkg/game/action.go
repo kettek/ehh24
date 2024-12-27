@@ -38,8 +38,8 @@ func (a *ActionLook) Apply(t *Thinger) (c []Change) {
 	}
 
 	c = append(c, &ChangeDarknessOverlay{
-		X:     t.X,
-		Y:     t.Y - float64(t.stax.Stax.SliceHeight)/2,
+		X:     t.X(),
+		Y:     t.Y() - float64(t.stax.Stax.SliceHeight)/2,
 		Angle: math.Atan2(t.lookY+0.4, t.lookX), // Fix this hardcoded 0.4... it's the offset we need for eye position
 	})
 
@@ -55,8 +55,8 @@ func (a *ActionPosition) Done() bool {
 }
 
 func (a *ActionPosition) Apply(t *Thinger) []Change {
-	t.X = a.X
-	t.Y = a.Y
+	t.SetX(a.X)
+	t.SetY(a.Y)
 	return nil
 }
 
@@ -66,12 +66,12 @@ type ActionMoveTo struct {
 }
 
 func (a *ActionMoveTo) Apply(t *Thinger) (c []Change) {
-	dx := a.X - t.X
-	dy := a.Y - t.Y
+	dx := a.X - t.X()
+	dy := a.Y - t.Y()
 	dist := math.Sqrt(dx*dx + dy*dy)
 	if dist < a.Speed {
-		t.X = a.X
-		t.Y = a.Y
+		t.SetX(a.X)
+		t.SetY(a.Y)
 		a.done = true
 		t.Animation("center")
 		t.walking = false
@@ -91,12 +91,12 @@ func (a *ActionMoveTo) Apply(t *Thinger) (c []Change) {
 	} else {
 		t.faceUp = false
 	}
-	t.X += dx / dist * a.Speed
-	t.Y += dy / dist * a.Speed * 0.6
+	t.SetX(t.X() + dx/dist*a.Speed)
+	t.SetY(t.Y() + dy/dist*a.Speed*0.6)
 
 	c = append(c, &ChangeDarknessOverlay{
-		X:     t.X,
-		Y:     t.Y - float64(t.stax.Stax.SliceHeight)/2,
+		X:     t.X(),
+		Y:     t.Y() - float64(t.stax.Stax.SliceHeight)/2,
 		Angle: math.Atan2(t.lookY+0.4, t.lookX), // Fix this hardcoded 0.4... it's the offset we need for eye position
 	})
 

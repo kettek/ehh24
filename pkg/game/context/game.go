@@ -1,14 +1,14 @@
-package game
+package context
 
 import "github.com/hajimehoshi/ebiten/v2"
 
-type GameContext struct {
+type Game struct {
 	Width  float64
 	Height float64
 	Zoom   float64
 }
 
-func (c *GameContext) MousePosition() (float64, float64) {
+func (c *Game) MousePosition() (float64, float64) {
 	x, y := ebiten.CursorPosition()
 
 	if x < 0 {
@@ -25,6 +25,6 @@ func (c *GameContext) MousePosition() (float64, float64) {
 	return float64(x) / c.Zoom, float64(y) / c.Zoom
 }
 
-func (c *GameContext) Size() (float64, float64) {
+func (c *Game) Size() (float64, float64) {
 	return c.Width / c.Zoom, c.Height / c.Zoom
 }

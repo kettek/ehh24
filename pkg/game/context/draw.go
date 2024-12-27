@@ -1,13 +1,8 @@
-package game
+package context
 
 import "github.com/hajimehoshi/ebiten/v2"
 
-type UpdateDrawer interface {
-	Update(ctx *GameContext) []Change
-	Draw(ctx *DrawContext)
-}
-
-type DrawContext struct {
+type Draw struct {
 	Width  float64
 	Height float64
 	Target *ebiten.Image
@@ -15,7 +10,7 @@ type DrawContext struct {
 	//GeoM   ebiten.GeoM
 }
 
-func (d *DrawContext) MousePosition() (float64, float64) {
+func (d *Draw) MousePosition() (float64, float64) {
 	x, y := ebiten.CursorPosition()
 
 	if x < 0 {
@@ -35,7 +30,7 @@ func (d *DrawContext) MousePosition() (float64, float64) {
 	return float64(x) / scaleX, float64(y) / scaleY
 }
 
-func (d *DrawContext) Size() (float64, float64) {
+func (d *Draw) Size() (float64, float64) {
 	scaleX := d.Op.GeoM.Element(0, 0)
 	scaleY := d.Op.GeoM.Element(1, 1)
 

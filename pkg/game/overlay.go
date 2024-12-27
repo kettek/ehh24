@@ -7,6 +7,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
+	"github.com/kettek/ehh24/pkg/game/context"
 )
 
 var (
@@ -52,7 +53,7 @@ func (d *DarknessOverlay) Update() {
 	}
 }
 
-func (d *DarknessOverlay) Draw(ctx *DrawContext) {
+func (d *DarknessOverlay) Draw(ctx *context.Draw) {
 	scale := ctx.Op.GeoM.Element(0, 0)
 	x := d.X * scale
 	y := d.Y * scale

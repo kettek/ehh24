@@ -6,30 +6,31 @@ import (
 	"math/rand/v2"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kettek/ehh24/pkg/game/ables"
+	"github.com/kettek/ehh24/pkg/game/context"
 )
 
 type Staticer struct {
 	Staxer
-	Positioner
+	ables.Positionable
+	ables.IDable
+	ables.Tagable
 	originX float64
 	originY float64
 }
 
 func NewStaticer(name string) *Staticer {
 	return &Staticer{
-		Staxer: NewStaxer(name),
-		Positioner: Positioner{
-			X: 32 + rand.Float64()*256,
-			Y: 32 + rand.Float64()*256,
-		},
+		Staxer:       NewStaxer(name),
+		Positionable: ables.MakePositionable(32+rand.Float64()*256, 32+rand.Float64()*256),
 	}
 }
 
-func (t *Staticer) Update(ctx *GameContext) []Change {
+func (t *Staticer) Update(ctx *context.Game) []Change {
 	return nil
 }
 
-func (t *Staticer) Draw(ctx *DrawContext) {
+func (t *Staticer) Draw(ctx *context.Draw) {
 	scale := ctx.Op.GeoM.Element(0, 0)
 
 	const sliceDistance = 1.5
@@ -42,7 +43,7 @@ func (t *Staticer) Draw(ctx *DrawContext) {
 			opts.GeoM.Rotate(math.Pi / 30)
 			opts.GeoM.Translate(float64(t.stax.Stax.SliceWidth)*t.originX, float64(t.stax.Stax.SliceHeight)*t.originY)
 
-			opts.GeoM.Translate(t.X, t.Y)
+			opts.GeoM.Translate(t.X(), t.Y())
 
 			opts.GeoM.Translate(0, -sliceDistance*float64(i))
 

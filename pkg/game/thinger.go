@@ -5,11 +5,15 @@ import (
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kettek/ehh24/pkg/game/ables"
+	"github.com/kettek/ehh24/pkg/game/context"
 )
 
 type Thinger struct {
+	ables.IDable
+	ables.Tagable
+	ables.Positionable
 	Staxer
-	Positioner
 	controller Controller
 	lookX      float64
 	lookY      float64
@@ -25,15 +29,12 @@ type Thinger struct {
 
 func NewThinger(name string) *Thinger {
 	return &Thinger{
-		Staxer: NewStaxer(name),
-		Positioner: Positioner{
-			X: 128,
-			Y: 128,
-		},
+		Staxer:       NewStaxer(name),
+		Positionable: ables.MakePositionable(128, 128),
 	}
 }
 
-func (t *Thinger) Update(ctx *GameContext) (changes []Change) {
+func (t *Thinger) Update(ctx *context.Game) (changes []Change) {
 	t.ticker++
 	if t.controller != nil {
 		for _, a := range t.controller.Update(ctx, t) {
@@ -59,7 +60,7 @@ func (t *Thinger) sortedSlices() []int {
 	return slices
 }
 
-func (t *Thinger) Draw(ctx *DrawContext) {
+func (t *Thinger) Draw(ctx *context.Draw) {
 	opts := &ebiten.DrawImageOptions{}
 
 	for _, i := range t.sortedSlices() {
@@ -94,7 +95,7 @@ func (t *Thinger) Draw(ctx *DrawContext) {
 			}
 		}
 
-		opts.GeoM.Translate(t.X, t.Y)
+		opts.GeoM.Translate(t.X(), t.Y())
 
 		opts.Blend = ctx.Op.Blend
 		opts.GeoM.Concat(ctx.Op.GeoM)
