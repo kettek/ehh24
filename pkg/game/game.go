@@ -4,21 +4,21 @@ import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kettek/ehh24/pkg/game/ables"
 	"github.com/kettek/ehh24/pkg/game/context"
 	input "github.com/quasilyte/ebitengine-input"
 )
 
 // Game is our absolutely amazing game with so many features and fun.
 type Game struct {
-	insys             input.System
-	geom              ebiten.GeoM
-	midlay            *ebiten.Image
-	cursor            Referable
-	visibilityOverlay *VisibilityOverlay
+	insys  input.System
+	geom   ebiten.GeoM
+	midlay *ebiten.Image
 
 	referables Referables
-	gctx       context.Game
-	dctx       context.Draw
+
+	gctx context.Game
+	dctx context.Draw
 }
 
 // NewGame does exactly what you should think.
@@ -34,31 +34,39 @@ func NewGame() *Game {
 	c.originX = -0.5
 	c.originY = -0.5
 	ebiten.SetCursorMode(ebiten.CursorModeHidden)
-	g.cursor = c
+	c.SetPriority(ables.PriorityBeyond)
+	c.SetTag("cursor")
 
 	t := NewThinger("test")
 	t.controller = NewPlayerController(&g.insys)
 	t.originX = -0.5
 	t.originY = -1
+	t.SetPriority(ables.PriorityMiddle)
 
 	// Make some test stuf.
 	t1 := NewStaticer("term-small")
 	t1.originX = -0.5
 	t1.originY = -1
+	t1.SetPriority(ables.PriorityMiddle)
 
 	t2 := NewStaticer("term-large")
 	t2.originX = -0.5
 	t2.originY = -1
+	t2.SetPriority(ables.PriorityMiddle)
 
 	geom := ebiten.GeoM{}
 	geom.Scale(3, 3)
 
 	g.geom = geom
-	g.referables = Referables{t, t1, t2}
 
 	g.gctx.Zoom = g.geom.Element(0, 0)
 
-	g.visibilityOverlay = NewVisibilityOverlay(320, 240)
+	vis := NewVisibilityOverlay(320, 240)
+	vis.SetPriority(ables.PriorityOverlay)
+	vis.SetTag("visibility")
+
+	g.referables = Referables{t, t1, t2, vis, c}
+
 	g.midlay = ebiten.NewImage(320, 240)
 
 	return g
@@ -77,9 +85,6 @@ func (g *Game) Update() error {
 		c.Apply(g)
 	}
 
-	g.cursor.(Updateable).Update(&g.gctx)
-	g.visibilityOverlay.Update()
-
 	return nil
 }
 
@@ -93,9 +98,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	g.midlay.Clear()
 	g.midlay.Fill(color.NRGBA{20, 20, 20, 255})
-	g.visibilityOverlay.Draw(&g.dctx)
 
-	for _, t := range g.referables.Drawables() {
+	for _, t := range g.referables.SortedDrawables() {
 		t.Draw(&g.dctx)
 	}
 	op = &ebiten.DrawImageOptions{}
@@ -103,10 +107,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	op.Blend = ebiten.BlendDestinationAtop
 
-	screen.DrawImage(g.visibilityOverlay.Image, op)
+	for _, t := range g.referables.Overlays() {
+		t.DrawTo(screen)
+	}
 
 	g.dctx.Target = screen
-	g.cursor.(Drawable).Draw(&g.dctx)
 }
 
 // Layout is a thing, yo.
@@ -116,8 +121,10 @@ func (g *Game) Layout(ow, oh int) (int, int) {
 		g.dctx.Height = float64(oh)
 		g.gctx.Width = float64(ow)
 		g.gctx.Height = float64(oh)
-		g.visibilityOverlay.Resize(ow, oh)
 		g.midlay = ebiten.NewImage(ow, oh)
+		for _, t := range g.referables.Overlays() {
+			t.Resize(ow, oh)
+		}
 	}
 	return ow, oh
 }

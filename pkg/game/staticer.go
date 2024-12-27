@@ -16,6 +16,7 @@ type Staticer struct {
 	ables.Positionable
 	ables.IDable
 	ables.Tagable
+	ables.Priorityable
 	originX float64
 	originY float64
 }

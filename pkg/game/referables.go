@@ -1,6 +1,11 @@
 package game
 
-import "github.com/kettek/ehh24/pkg/game/context"
+import (
+	"slices"
+
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kettek/ehh24/pkg/game/context"
+)
 
 // Referable refers to anything in za warudo that can be referred to. This will generally be types that implement Updateable and Drawable.
 type Referable interface {
@@ -20,6 +25,16 @@ func (r Referables) ByTag(tag string) Referables {
 		}
 	}
 	return res
+}
+
+// ByFirstTag just returns the first Referable found by tag.
+func (r Referables) ByFirstTag(tag string) Referable {
+	for _, t := range r {
+		if t.Tag() == tag {
+			return t
+		}
+	}
+	return nil
 }
 
 // ByID returns the Referable with the given ID.
@@ -51,6 +66,7 @@ func (r Referables) Updateables() []Updateable {
 // Drawable refers to anything in za warudo that can be drawn.
 type Drawable interface {
 	Draw(ctx *context.Draw)
+	Priority() int
 }
 
 // Drawables returns a list of all the Drawable objects in the Referables.
@@ -58,6 +74,34 @@ func (r Referables) Drawables() []Drawable {
 	var res []Drawable
 	for _, t := range r {
 		if d, ok := t.(Drawable); ok {
+			res = append(res, d)
+		}
+	}
+	return res
+}
+
+// SortedDrawables returns a list of all the Drawables in the Referables, sorted by Priority.
+func (r Referables) SortedDrawables() []Drawable {
+	drawables := r.Drawables()
+	slices.SortFunc(r.Drawables(), func(a, b Drawable) int {
+		return b.Priority() - a.Priority()
+	})
+	return drawables
+}
+
+// Overlayable represents a drawable that has an ebiten.Image
+type Overlayable interface {
+	Drawable
+	Updateable
+	DrawTo(*ebiten.Image)
+	Resize(int, int)
+}
+
+// Overlays returns a list of all the Overlayable objects in the Referables.
+func (r Referables) Overlays() []Overlayable {
+	var res []Overlayable
+	for _, t := range r {
+		if d, ok := t.(Overlayable); ok {
 			res = append(res, d)
 		}
 	}

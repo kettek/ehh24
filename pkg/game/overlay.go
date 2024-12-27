@@ -7,6 +7,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
+	"github.com/kettek/ehh24/pkg/game/ables"
 	"github.com/kettek/ehh24/pkg/game/context"
 )
 
@@ -21,7 +22,10 @@ func init() {
 
 // VisibilityOverlay is a "cutout" overlayed on top of the game render.
 type VisibilityOverlay struct {
-	*ebiten.Image
+	ables.IDable
+	ables.Priorityable
+	ables.Tagable
+	img         *ebiten.Image
 	X, Y        float64
 	Angle       float64
 	TargetAngle float64
@@ -35,7 +39,7 @@ func NewVisibilityOverlay(width, height int) *VisibilityOverlay {
 }
 
 // Update rotates the visibility cone towards the current target angle.
-func (d *VisibilityOverlay) Update() {
+func (d *VisibilityOverlay) Update(ctx *context.Game) []Change {
 	// Rotate Angle towards TargetAngle, preferring the shortest distance.
 	// If the difference is greater than Pi, rotate the other way.
 	diff := d.TargetAngle - d.Angle
@@ -54,14 +58,16 @@ func (d *VisibilityOverlay) Update() {
 	} else if d.Angle < -math.Pi {
 		d.Angle += math.Pi * 2
 	}
+	return nil
 }
 
 // Draw draws the visibility overlay.
 func (d *VisibilityOverlay) Draw(ctx *context.Draw) {
+	// TODO: Probably on redraw on resize???
 	scale := ctx.Op.GeoM.Element(0, 0)
 	x := d.X * scale
 	y := d.Y * scale
-	d.Clear()
+	d.img.Clear()
 	var path vector.Path
 	size := float32(700)
 	radius := float32(math.Pi / 4)
@@ -88,10 +94,17 @@ func (d *VisibilityOverlay) Draw(ctx *context.Draw) {
 	top.AntiAlias = true
 	top.FillRule = ebiten.FillRuleNonZero
 	top.ColorScaleMode = ebiten.ColorScaleModeStraightAlpha
-	d.DrawTriangles(vertices, indices, whiteSubImage, top)
+	d.img.DrawTriangles(vertices, indices, whiteSubImage, top)
 }
 
 // Resize resizes the visibilty overlay
 func (d *VisibilityOverlay) Resize(width, height int) {
-	d.Image = ebiten.NewImage(width, height)
+	d.img = ebiten.NewImage(width, height)
+}
+
+// DrawTo draws the visibility overlay to the target image.
+func (d *VisibilityOverlay) DrawTo(img *ebiten.Image) {
+	op := &ebiten.DrawImageOptions{}
+	op.Blend = ebiten.BlendDestinationAtop
+	img.DrawImage(d.img, op)
 }

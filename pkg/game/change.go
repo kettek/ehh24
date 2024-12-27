@@ -13,7 +13,9 @@ type ChangeVisibilityOverlay struct {
 
 // Apply applies changes to the visibility overlay.
 func (c *ChangeVisibilityOverlay) Apply(g *Game) {
-	g.visibilityOverlay.X = c.X
-	g.visibilityOverlay.Y = c.Y
-	g.visibilityOverlay.TargetAngle = c.Angle
+	if v, ok := g.referables.ByFirstTag("visibility").(*VisibilityOverlay); ok {
+		v.X = c.X
+		v.Y = c.Y
+		v.TargetAngle = c.Angle
+	}
 }
