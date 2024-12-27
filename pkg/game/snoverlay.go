@@ -16,12 +16,14 @@ type Snoverlay struct {
 	ables.Priorityable
 	ables.Tagable
 	ables.Positionable
-	snimg   *ebiten.Image
-	snow    []snowflake
-	wind    float64
-	winddir float64
-	width   float64
-	height  float64
+	snimg    *ebiten.Image
+	snow     []snowflake
+	windx    float64
+	windxdir float64
+	windy    float64
+	windydir float64
+	width    float64
+	height   float64
 }
 
 type snowflake struct {
@@ -60,23 +62,30 @@ func NewSnoverlay(w, h float64) *Snoverlay {
 	snimg.DrawTriangles(vertices, indices, whiteSubImage, top)
 
 	return &Snoverlay{
-		snimg:   snimg,
-		snow:    snow,
-		winddir: 0.01,
+		snimg:    snimg,
+		snow:     snow,
+		windxdir: -0.01,
+		windydir: 0.01,
 	}
 }
 
 func (d *Snoverlay) Update(ctx *context.Game) []Change {
-	d.wind += d.winddir
-	if d.wind > 1 {
-		d.winddir = -0.001
-	} else if d.wind < -1 {
-		d.winddir = 0.001
+	d.windx += d.windxdir
+	if d.windx > 1 {
+		d.windxdir = -0.001
+	} else if d.windx < -1 {
+		d.windxdir = 0.001
+	}
+	d.windy += d.windydir
+	if d.windy > 1 {
+		d.windydir = -0.0005
+	} else if d.windy < -1 {
+		d.windydir = 0.0005
 	}
 	for i := range d.snow {
-		d.snow[i].x += d.wind
+		d.snow[i].x += d.windx
 		d.snow[i].z -= 0.01
-		d.snow[i].y += d.snow[i].z / 2
+		d.snow[i].y += d.windy + d.snow[i].z/4
 		if d.snow[i].y > float64(d.height) || d.snow[i].z <= 0 {
 			d.snow[i].y = rand.Float64() * d.height
 			d.snow[i].x = rand.Float64() * d.width
