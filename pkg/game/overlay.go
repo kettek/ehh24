@@ -19,20 +19,23 @@ func init() {
 	whiteImage.Fill(color.White)
 }
 
-type DarknessOverlay struct {
+// VisibilityOverlay is a "cutout" overlayed on top of the game render.
+type VisibilityOverlay struct {
 	*ebiten.Image
 	X, Y        float64
 	Angle       float64
 	TargetAngle float64
 }
 
-func NewDarknessOverlay(width, height int) *DarknessOverlay {
-	d := &DarknessOverlay{}
+// NewVisibilityOverlay creates a new VisibilityOverlay.
+func NewVisibilityOverlay(width, height int) *VisibilityOverlay {
+	d := &VisibilityOverlay{}
 	d.Resize(width, height)
 	return d
 }
 
-func (d *DarknessOverlay) Update() {
+// Update rotates the visibility cone towards the current target angle.
+func (d *VisibilityOverlay) Update() {
 	// Rotate Angle towards TargetAngle, preferring the shortest distance.
 	// If the difference is greater than Pi, rotate the other way.
 	diff := d.TargetAngle - d.Angle
@@ -53,7 +56,8 @@ func (d *DarknessOverlay) Update() {
 	}
 }
 
-func (d *DarknessOverlay) Draw(ctx *context.Draw) {
+// Draw draws the visibility overlay.
+func (d *VisibilityOverlay) Draw(ctx *context.Draw) {
 	scale := ctx.Op.GeoM.Element(0, 0)
 	x := d.X * scale
 	y := d.Y * scale
@@ -87,6 +91,7 @@ func (d *DarknessOverlay) Draw(ctx *context.Draw) {
 	d.DrawTriangles(vertices, indices, whiteSubImage, top)
 }
 
-func (d *DarknessOverlay) Resize(width, height int) {
+// Resize resizes the visibilty overlay
+func (d *VisibilityOverlay) Resize(width, height int) {
 	d.Image = ebiten.NewImage(width, height)
 }

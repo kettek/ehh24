@@ -5,10 +5,12 @@ import (
 	input "github.com/quasilyte/ebitengine-input"
 )
 
+// Controller is an interface for controlling a Thinger.
 type Controller interface {
 	Update(ctx *context.Game, t *Thinger) []Action
 }
 
+// PlayerController is a player-driven controller.
 type PlayerController struct {
 	input      *input.Handler
 	action     Action
@@ -16,6 +18,7 @@ type PlayerController struct {
 	lastMouseY float64
 }
 
+// Our inputs for moving with a PlayerController.
 const (
 	InputLeft input.Action = iota
 	InputRight
@@ -24,6 +27,7 @@ const (
 	InputMoveTo
 )
 
+// NewPlayerController creates a new PlayerController.
 func NewPlayerController(insys *input.System) *PlayerController {
 	keymap := input.Keymap{
 		InputLeft:   {input.KeyGamepadLStickLeft, input.KeyLeft, input.KeyA},
@@ -39,6 +43,7 @@ func NewPlayerController(insys *input.System) *PlayerController {
 	return pc
 }
 
+// Update updates the PlayerController.
 func (p *PlayerController) Update(ctx *context.Game, t *Thinger) (a []Action) {
 	x, y := ctx.MousePosition()
 	w, h := ctx.Size()
@@ -90,13 +95,16 @@ func (p *PlayerController) Update(ctx *context.Game, t *Thinger) (a []Action) {
 	return a
 }
 
+// CursorController is a controller for the cursor.
 type CursorController struct {
 }
 
+// NewCursorController creates a new CursorController.
 func NewCursorController() *CursorController {
 	return &CursorController{}
 }
 
+// Update creates ActionPosition for adjusting the cursor's position.
 func (c *CursorController) Update(ctx *context.Game, t *Thinger) (a []Action) {
 	x, y := ctx.MousePosition()
 

@@ -10,6 +10,7 @@ import (
 	"github.com/kettek/ehh24/pkg/game/context"
 )
 
+// Staticer is a poorly named world object that is intended to be entirely static.
 type Staticer struct {
 	Staxer
 	ables.Positionable
@@ -19,6 +20,7 @@ type Staticer struct {
 	originY float64
 }
 
+// NewStaticer makes a staticer, wow.
 func NewStaticer(name string) *Staticer {
 	return &Staticer{
 		Staxer:       NewStaxer(name),
@@ -26,10 +28,12 @@ func NewStaticer(name string) *Staticer {
 	}
 }
 
+// Update doesn't do jack yet. Probably will be used for animations.
 func (t *Staticer) Update(ctx *context.Game) []Change {
 	return nil
 }
 
+// Draw draws the staticer to da screen.
 func (t *Staticer) Draw(ctx *context.Draw) {
 	scale := ctx.Op.GeoM.Element(0, 0)
 

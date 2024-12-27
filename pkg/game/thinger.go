@@ -9,6 +9,7 @@ import (
 	"github.com/kettek/ehh24/pkg/game/context"
 )
 
+// Thinger represents a moveable thing in the world.
 type Thinger struct {
 	ables.IDable
 	ables.Tagable
@@ -27,6 +28,7 @@ type Thinger struct {
 	ticker     int
 }
 
+// NewThinger makes our new thang.
 func NewThinger(name string) *Thinger {
 	return &Thinger{
 		Staxer:       NewStaxer(name),
@@ -34,6 +36,7 @@ func NewThinger(name string) *Thinger {
 	}
 }
 
+// Update updates the thing and returns changes.
 func (t *Thinger) Update(ctx *context.Game) (changes []Change) {
 	t.ticker++
 	if t.controller != nil {
@@ -60,6 +63,7 @@ func (t *Thinger) sortedSlices() []int {
 	return slices
 }
 
+// Draw draws the dang thing.
 func (t *Thinger) Draw(ctx *context.Draw) {
 	opts := &ebiten.DrawImageOptions{}
 

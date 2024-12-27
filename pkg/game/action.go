@@ -2,20 +2,24 @@ package game
 
 import "math"
 
+// Action represents an action that can be applied to a thinger, optionally looping with Done() checks.
 type Action interface {
 	Apply(t *Thinger) []Change
 	Done() bool
 }
 
+// ActionLook changes the look direction of a thinger.
 type ActionLook struct {
 	LookX, LookY float64
 	ShouldFace   bool
 }
 
+// Done is true.
 func (a *ActionLook) Done() bool {
 	return true
 }
 
+// Apply changes the look direction of a thinger.
 func (a *ActionLook) Apply(t *Thinger) (c []Change) {
 	t.lookX = a.LookX
 	t.lookY = a.LookY
@@ -37,7 +41,7 @@ func (a *ActionLook) Apply(t *Thinger) (c []Change) {
 		}
 	}
 
-	c = append(c, &ChangeDarknessOverlay{
+	c = append(c, &ChangeVisibilityOverlay{
 		X:     t.X(),
 		Y:     t.Y() - float64(t.stax.Stax.SliceHeight)/2,
 		Angle: math.Atan2(t.lookY+0.4, t.lookX), // Fix this hardcoded 0.4... it's the offset we need for eye position
@@ -46,25 +50,30 @@ func (a *ActionLook) Apply(t *Thinger) (c []Change) {
 	return c
 }
 
+// ActionPosition changes the position of a thinger.
 type ActionPosition struct {
 	X, Y float64
 }
 
+// Done is true.
 func (a *ActionPosition) Done() bool {
 	return true
 }
 
+// Apply changes the position of a thinger.
 func (a *ActionPosition) Apply(t *Thinger) []Change {
 	t.SetX(a.X)
 	t.SetY(a.Y)
 	return nil
 }
 
+// ActionMoveTo moves a thinger to a position. This occurs over time.
 type ActionMoveTo struct {
 	X, Y, Speed float64
 	done        bool
 }
 
+// Apply moves a thinger to a position over time.
 func (a *ActionMoveTo) Apply(t *Thinger) (c []Change) {
 	dx := a.X - t.X()
 	dy := a.Y - t.Y()
@@ -94,7 +103,7 @@ func (a *ActionMoveTo) Apply(t *Thinger) (c []Change) {
 	t.SetX(t.X() + dx/dist*a.Speed)
 	t.SetY(t.Y() + dy/dist*a.Speed*0.6)
 
-	c = append(c, &ChangeDarknessOverlay{
+	c = append(c, &ChangeVisibilityOverlay{
 		X:     t.X(),
 		Y:     t.Y() - float64(t.stax.Stax.SliceHeight)/2,
 		Angle: math.Atan2(t.lookY+0.4, t.lookX), // Fix this hardcoded 0.4... it's the offset we need for eye position
@@ -103,6 +112,7 @@ func (a *ActionMoveTo) Apply(t *Thinger) (c []Change) {
 	return c
 }
 
+// Done is true when the thinger has moved to the target position.
 func (a *ActionMoveTo) Done() bool {
 	return a.done
 }

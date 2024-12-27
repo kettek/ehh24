@@ -5,6 +5,7 @@ import (
 	"github.com/kettek/ehh24/pkg/stax"
 )
 
+// Our bits and bobs of most thingers.
 const (
 	BackLeg = iota
 	BackArm
@@ -15,6 +16,7 @@ const (
 	Eyes
 )
 
+// Staxer is a contained state structure for rendering staxie files.
 type Staxer struct {
 	stax       res.StaxImage // hmm
 	stack      *stax.Stack
@@ -25,6 +27,7 @@ type Staxer struct {
 	frameTimer int
 }
 
+// NewStaxer does exactly what u thinkie.
 func NewStaxer(name string) Staxer {
 	st, err := res.GetStax(name)
 	if err != nil {
@@ -50,6 +53,7 @@ func NewStaxer(name string) Staxer {
 	}
 }
 
+// Animation sets the staxer's animation to the given string. Panics if no string exists.
 func (s *Staxer) Animation(name string) {
 	if s.lastAnim == name {
 		return
@@ -65,6 +69,7 @@ func (s *Staxer) Animation(name string) {
 	s.frameTimer = 0
 }
 
+// Update updates the animation timer.
 func (s *Staxer) Update() {
 	s.frameTimer++
 	if s.frameTimer > s.animation.FrameTime {

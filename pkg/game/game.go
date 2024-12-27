@@ -8,18 +8,20 @@ import (
 	input "github.com/quasilyte/ebitengine-input"
 )
 
+// Game is our absolutely amazing game with so many features and fun.
 type Game struct {
-	insys           input.System
-	geom            ebiten.GeoM
-	midlay          *ebiten.Image
-	cursor          Referable
-	darknessOverlay *DarknessOverlay
+	insys             input.System
+	geom              ebiten.GeoM
+	midlay            *ebiten.Image
+	cursor            Referable
+	visibilityOverlay *VisibilityOverlay
 
 	referables Referables
 	gctx       context.Game
 	dctx       context.Draw
 }
 
+// NewGame does exactly what you should think.
 func NewGame() *Game {
 	g := &Game{}
 	g.insys.Init(input.SystemConfig{
@@ -56,12 +58,13 @@ func NewGame() *Game {
 
 	g.gctx.Zoom = g.geom.Element(0, 0)
 
-	g.darknessOverlay = NewDarknessOverlay(320, 240)
+	g.visibilityOverlay = NewVisibilityOverlay(320, 240)
 	g.midlay = ebiten.NewImage(320, 240)
 
 	return g
 }
 
+// Update updates the game.
 func (g *Game) Update() error {
 	g.insys.Update()
 
@@ -75,11 +78,12 @@ func (g *Game) Update() error {
 	}
 
 	g.cursor.(Updateable).Update(&g.gctx)
-	g.darknessOverlay.Update()
+	g.visibilityOverlay.Update()
 
 	return nil
 }
 
+// Draw draws the game.
 func (g *Game) Draw(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM = g.geom
@@ -89,7 +93,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	g.midlay.Clear()
 	g.midlay.Fill(color.NRGBA{20, 20, 20, 255})
-	g.darknessOverlay.Draw(&g.dctx)
+	g.visibilityOverlay.Draw(&g.dctx)
 
 	for _, t := range g.referables.Drawables() {
 		t.Draw(&g.dctx)
@@ -99,19 +103,20 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	op.Blend = ebiten.BlendDestinationAtop
 
-	screen.DrawImage(g.darknessOverlay.Image, op)
+	screen.DrawImage(g.visibilityOverlay.Image, op)
 
 	g.dctx.Target = screen
 	g.cursor.(Drawable).Draw(&g.dctx)
 }
 
+// Layout is a thing, yo.
 func (g *Game) Layout(ow, oh int) (int, int) {
 	if g.dctx.Width != float64(ow) || g.dctx.Height != float64(oh) {
 		g.dctx.Width = float64(ow)
 		g.dctx.Height = float64(oh)
 		g.gctx.Width = float64(ow)
 		g.gctx.Height = float64(oh)
-		g.darknessOverlay.Resize(ow, oh)
+		g.visibilityOverlay.Resize(ow, oh)
 		g.midlay = ebiten.NewImage(ow, oh)
 	}
 	return ow, oh
