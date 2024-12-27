@@ -8,11 +8,12 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/kettek/ehh24/pkg/game/ables"
 	"github.com/kettek/ehh24/pkg/game/context"
+	"github.com/kettek/ehh24/pkg/statemachine"
 	input "github.com/quasilyte/ebitengine-input"
 )
 
-// Game is our absolutely amazing game with so many features and fun.
-type Game struct {
+// State is our absolutely amazing game with so many features and fun.
+type State struct {
 	insys  input.System
 	geom   ebiten.GeoM
 	midlay *ebiten.Image
@@ -25,9 +26,9 @@ type Game struct {
 	dctx context.Draw
 }
 
-// NewGame does exactly what you should think.
-func NewGame() *Game {
-	g := &Game{}
+// NewState does exactly what you should think.
+func NewState() *State {
+	g := &State{}
 	g.insys.Init(input.SystemConfig{
 		DevicesEnabled: input.AnyDevice,
 	})
@@ -84,7 +85,7 @@ func NewGame() *Game {
 }
 
 // Update updates the game.
-func (g *Game) Update() error {
+func (g *State) Update() statemachine.State {
 	g.insys.Update()
 
 	startProfile("update")
@@ -112,7 +113,7 @@ func (g *Game) Update() error {
 }
 
 // Draw draws the game.
-func (g *Game) Draw(screen *ebiten.Image) {
+func (g *State) Draw(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM = g.geom
 
@@ -154,7 +155,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 // Layout is a thing, yo.
-func (g *Game) Layout(ow, oh int) (int, int) {
+func (g *State) Layout(ow, oh int) (int, int) {
 	if g.dctx.Width != float64(ow) || g.dctx.Height != float64(oh) {
 		g.dctx.Width = float64(ow)
 		g.dctx.Height = float64(oh)

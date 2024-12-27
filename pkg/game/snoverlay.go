@@ -30,6 +30,7 @@ type snowflake struct {
 	x, y, z float64
 }
 
+// NewSnoverlay creates a new snow overlay.
 func NewSnoverlay(w, h float64) *Snoverlay {
 	snow := make([]snowflake, 200)
 	for i := range snow {
@@ -69,6 +70,7 @@ func NewSnoverlay(w, h float64) *Snoverlay {
 	}
 }
 
+// Update updates the snow overlay.
 func (d *Snoverlay) Update(ctx *context.Game) []Change {
 	d.windx += d.windxdir
 	if d.windx > 1 {
@@ -95,10 +97,12 @@ func (d *Snoverlay) Update(ctx *context.Game) []Change {
 	return nil
 }
 
+// Draw does nothing.
 func (d *Snoverlay) Draw(ctx *context.Draw) {
 	// de nada
 }
 
+// Resize resizes the snow overlay.
 func (d *Snoverlay) Resize(width, height int) {
 	d.width = float64(width)
 	d.height = float64(height)
@@ -107,6 +111,7 @@ func (d *Snoverlay) Resize(width, height int) {
 	}
 }
 
+// DrawTo draws the snow overlay to an image.
 func (d *Snoverlay) DrawTo(img *ebiten.Image) {
 	for _, s := range d.snow {
 		opts := &ebiten.DrawImageOptions{}
@@ -118,6 +123,7 @@ func (d *Snoverlay) DrawTo(img *ebiten.Image) {
 	}
 }
 
+// String returns a string representation of the snow overlay.
 func (d *Snoverlay) String() string {
 	return fmt.Sprintf("%d:%s:%d", d.ID(), d.Tag(), d.Priority())
 }

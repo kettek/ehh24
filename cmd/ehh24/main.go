@@ -2,8 +2,11 @@ package main
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/kettek/ehh24/pkg/editor"
 	"github.com/kettek/ehh24/pkg/game"
 	"github.com/kettek/ehh24/pkg/res"
+	"github.com/kettek/ehh24/pkg/statemachine"
 )
 
 func main() {
@@ -11,10 +14,19 @@ func main() {
 		panic(err)
 	}
 
-	game := game.NewGame()
 	ebiten.SetWindowSize(1280, 720)
 	ebiten.SetWindowTitle("Hello, 世界")
-	if err := ebiten.RunGame(game); err != nil {
+
+	m := statemachine.NewMachine(game.NewState())
+	m.AddCheck(func() {
+		if inpututil.IsKeyJustReleased(ebiten.KeyF1) {
+			m.SetState(game.NewState())
+		} else if inpututil.IsKeyJustReleased(ebiten.KeyF2) {
+			m.SetState(editor.NewState())
+		}
+	})
+
+	if err := ebiten.RunGame(m); err != nil {
 		panic(err)
 	}
 }
