@@ -66,7 +66,11 @@ func (r Referables) Updateables() []Updateable {
 // Drawable refers to anything in za warudo that can be drawn.
 type Drawable interface {
 	Draw(ctx *context.Draw)
+	Tag() string
+	X() float64
+	Y() float64
 	Priority() int
+	SetOffset(int)
 }
 
 // Drawables returns a list of all the Drawable objects in the Referables.
@@ -83,8 +87,8 @@ func (r Referables) Drawables() []Drawable {
 // SortedDrawables returns a list of all the Drawables in the Referables, sorted by Priority.
 func (r Referables) SortedDrawables() []Drawable {
 	drawables := r.Drawables()
-	slices.SortFunc(r.Drawables(), func(a, b Drawable) int {
-		return b.Priority() - a.Priority()
+	slices.SortFunc(drawables, func(a, b Drawable) int {
+		return a.Priority() - b.Priority()
 	})
 	return drawables
 }

@@ -25,8 +25,8 @@ type VisibilityOverlay struct {
 	ables.IDable
 	ables.Priorityable
 	ables.Tagable
+	ables.Positionable
 	img         *ebiten.Image
-	X, Y        float64
 	Angle       float64
 	TargetAngle float64
 }
@@ -65,8 +65,8 @@ func (d *VisibilityOverlay) Update(ctx *context.Game) []Change {
 func (d *VisibilityOverlay) Draw(ctx *context.Draw) {
 	// TODO: Probably on redraw on resize???
 	scale := ctx.Op.GeoM.Element(0, 0)
-	x := d.X * scale
-	y := d.Y * scale
+	x := d.X() * scale
+	y := d.Y() * scale
 	d.img.Clear()
 	var path vector.Path
 	size := float32(700)

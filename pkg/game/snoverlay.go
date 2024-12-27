@@ -14,6 +14,7 @@ type Snoverlay struct {
 	ables.IDable
 	ables.Priorityable
 	ables.Tagable
+	ables.Positionable
 	snimg   *ebiten.Image
 	snow    []snowflake
 	wind    float64
