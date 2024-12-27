@@ -1,6 +1,7 @@
 package game
 
 import (
+	"fmt"
 	"math"
 	"math/rand/v2"
 
@@ -106,4 +107,8 @@ func (d *Snoverlay) DrawTo(img *ebiten.Image) {
 		opts.ColorScale.ScaleAlpha(2.0 - float32(s.z))
 		img.DrawImage(d.snimg, opts)
 	}
+}
+
+func (d *Snoverlay) String() string {
+	return fmt.Sprintf("%d:%s:%d", d.ID(), d.Tag(), d.Priority())
 }

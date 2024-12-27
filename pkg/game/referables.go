@@ -112,3 +112,21 @@ func (r Referables) Overlays() []Overlayable {
 	}
 	return res
 }
+
+// Debugable is a referable that can be debuggied.
+type Debugable interface {
+	String() string
+	X() float64
+	Y() float64
+}
+
+// Debugables returns a list of all the Debugable objects in the Referables.
+func (r Referables) Debugables() []Debugable {
+	var res []Debugable
+	for _, t := range r {
+		if d, ok := t.(Debugable); ok {
+			res = append(res, d)
+		}
+	}
+	return res
+}

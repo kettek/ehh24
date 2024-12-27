@@ -127,9 +127,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	startProfile("draw drawables")
 	for _, t := range g.referables.SortedDrawables() {
 		t.Draw(&g.dctx)
-		if debug {
-			ebitenutil.DebugPrintAt(g.debugUI.img, fmt.Sprintf("%d:%s:%d", t.ID(), t.Tag(), t.Priority()), int(t.X()*g.gctx.Zoom), int(t.Y()*g.gctx.Zoom))
-		}
 	}
 	endProfile("draw drawables")
 
@@ -146,6 +143,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	// Print our debuggies
 	if debug {
+		for _, t := range g.referables.Debugables() {
+			ebitenutil.DebugPrintAt(g.debugUI.img, t.String(), int(t.X()*g.gctx.Zoom), int(t.Y()*g.gctx.Zoom))
+		}
 		for i, p := range profiles {
 			ebitenutil.DebugPrintAt(g.debugUI.img, fmt.Sprintf("%03d %s", p.duration.Milliseconds(), p.name), 0, 30+i*10)
 		}

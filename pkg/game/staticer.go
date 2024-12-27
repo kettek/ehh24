@@ -1,6 +1,7 @@
 package game
 
 import (
+	"fmt"
 	"image"
 	"math"
 	"math/rand/v2"
@@ -63,4 +64,8 @@ func (t *Staticer) Draw(ctx *context.Draw) {
 			ctx.Target.DrawImage(sub, opts)
 		}
 	}
+}
+
+func (t *Staticer) String() string {
+	return fmt.Sprintf("%d:%s:%d", t.ID(), t.Tag(), t.Priority())
 }

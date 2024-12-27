@@ -1,6 +1,7 @@
 package game
 
 import (
+	"fmt"
 	"image"
 	"math"
 
@@ -109,4 +110,8 @@ func (t *Thinger) Draw(ctx *context.Draw) {
 		sub := t.stax.EbiImage.SubImage(image.Rect(slice.X, slice.Y, slice.X+t.stax.Stax.SliceWidth, slice.Y+t.stax.Stax.SliceHeight)).(*ebiten.Image)
 		ctx.Target.DrawImage(sub, opts)
 	}
+}
+
+func (t *Thinger) String() string {
+	return fmt.Sprintf("%d:%s:%d", t.ID(), t.Tag(), t.Priority())
 }

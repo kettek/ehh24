@@ -1,6 +1,7 @@
 package game
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"math"
@@ -107,4 +108,8 @@ func (d *VisibilityOverlay) DrawTo(img *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 	op.Blend = ebiten.BlendDestinationAtop
 	img.DrawImage(d.img, op)
+}
+
+func (d *VisibilityOverlay) String() string {
+	return fmt.Sprintf("%d:%s:%d", d.ID(), d.Tag(), d.Priority())
 }
