@@ -34,6 +34,7 @@ func NewThinger(name string) *Thinger {
 	return &Thinger{
 		Staxer:       NewStaxer(name),
 		Positionable: ables.MakePositionable(128, 128),
+		IDable:       ables.NextIDable(),
 	}
 }
 

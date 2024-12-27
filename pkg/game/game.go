@@ -46,6 +46,7 @@ func NewGame() *Game {
 	t.originX = -0.5
 	t.originY = -1
 	t.SetPriority(ables.PriorityMiddle)
+	t.SetTag("qi")
 
 	// Make some test stuf.
 	t1 := NewStaticer("term-small")
@@ -127,7 +128,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	for _, t := range g.referables.SortedDrawables() {
 		t.Draw(&g.dctx)
 		if debug {
-			ebitenutil.DebugPrintAt(g.debugUI.img, fmt.Sprintf("%s:%d", t.Tag(), t.Priority()), int(t.X()*g.gctx.Zoom), int(t.Y()*g.gctx.Zoom))
+			ebitenutil.DebugPrintAt(g.debugUI.img, fmt.Sprintf("%d:%s:%d", t.ID(), t.Tag(), t.Priority()), int(t.X()*g.gctx.Zoom), int(t.Y()*g.gctx.Zoom))
 		}
 	}
 	endProfile("draw drawables")

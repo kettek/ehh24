@@ -67,6 +67,7 @@ func (r Referables) Updateables() []Updateable {
 type Drawable interface {
 	Draw(ctx *context.Draw)
 	Tag() string
+	ID() int
 	X() float64
 	Y() float64
 	Priority() int

@@ -26,6 +26,8 @@ func NewStaticer(name string) *Staticer {
 	return &Staticer{
 		Staxer:       NewStaxer(name),
 		Positionable: ables.MakePositionable(32+rand.Float64()*256, 32+rand.Float64()*256),
+		IDable:       ables.NextIDable(),
+		Tagable:      ables.MakeTagable(name),
 	}
 }
 
