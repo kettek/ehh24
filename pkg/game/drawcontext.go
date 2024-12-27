@@ -3,7 +3,7 @@ package game
 import "github.com/hajimehoshi/ebiten/v2"
 
 type UpdateDrawer interface {
-	Update(ctx *DrawContext) []Change
+	Update(ctx *GameContext) []Change
 	Draw(ctx *DrawContext)
 }
 

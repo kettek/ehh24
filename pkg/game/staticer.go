@@ -25,7 +25,7 @@ func NewStaticer(name string) *Staticer {
 	}
 }
 
-func (t *Staticer) Update(ctx *DrawContext) []Change {
+func (t *Staticer) Update(ctx *GameContext) []Change {
 	return nil
 }
 

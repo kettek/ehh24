@@ -5,7 +5,7 @@ import (
 )
 
 type Controller interface {
-	Update(ctx *DrawContext, t *Thinger) []Action
+	Update(ctx *GameContext, t *Thinger) []Action
 }
 
 type PlayerController struct {
@@ -38,7 +38,7 @@ func NewPlayerController(insys *input.System) *PlayerController {
 	return pc
 }
 
-func (p *PlayerController) Update(ctx *DrawContext, t *Thinger) (a []Action) {
+func (p *PlayerController) Update(ctx *GameContext, t *Thinger) (a []Action) {
 	x, y := ctx.MousePosition()
 	w, h := ctx.Size()
 
@@ -96,7 +96,7 @@ func NewCursorController() *CursorController {
 	return &CursorController{}
 }
 
-func (c *CursorController) Update(ctx *DrawContext, t *Thinger) (a []Action) {
+func (c *CursorController) Update(ctx *GameContext, t *Thinger) (a []Action) {
 	x, y := ctx.MousePosition()
 
 	a = append(a, &ActionPosition{

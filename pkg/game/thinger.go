@@ -33,7 +33,7 @@ func NewThinger(name string) *Thinger {
 	}
 }
 
-func (t *Thinger) Update(ctx *DrawContext) (changes []Change) {
+func (t *Thinger) Update(ctx *GameContext) (changes []Change) {
 	t.ticker++
 	if t.controller != nil {
 		for _, a := range t.controller.Update(ctx, t) {

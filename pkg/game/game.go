@@ -11,11 +11,12 @@ type Game struct {
 	insys           input.System
 	updateDrawers   []UpdateDrawer
 	geom            ebiten.GeoM
-	width           float64
-	height          float64
 	midlay          *ebiten.Image
 	cursor          UpdateDrawer
 	darknessOverlay *DarknessOverlay
+
+	gctx GameContext
+	dctx DrawContext
 }
 
 func NewGame() *Game {
@@ -52,6 +53,8 @@ func NewGame() *Game {
 	g.geom = geom
 	g.updateDrawers = []UpdateDrawer{t, t1, t2}
 
+	g.gctx.Zoom = g.geom.Element(0, 0)
+
 	g.darknessOverlay = NewDarknessOverlay(320, 240)
 	g.midlay = ebiten.NewImage(320, 240)
 
@@ -60,25 +63,17 @@ func NewGame() *Game {
 
 func (g *Game) Update() error {
 	g.insys.Update()
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM = g.geom
-
-	ctx := &DrawContext{
-		Width:  g.width,
-		Height: g.height,
-		Op:     op,
-	}
 
 	var changes []Change
 	for _, t := range g.updateDrawers {
-		changes = append(changes, t.Update(ctx)...)
+		changes = append(changes, t.Update(&g.gctx)...)
 	}
 
 	for _, c := range changes {
 		c.Apply(g)
 	}
 
-	g.cursor.Update(ctx)
+	g.cursor.Update(&g.gctx)
 	g.darknessOverlay.Update()
 
 	return nil
@@ -88,19 +83,15 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM = g.geom
 
-	dctx := &DrawContext{
-		Target: g.midlay,
-		Op:     op,
-		Width:  g.width,
-		Height: g.height,
-	}
+	g.dctx.Target = g.midlay
+	g.dctx.Op = op
 
 	g.midlay.Clear()
 	g.midlay.Fill(color.NRGBA{20, 20, 20, 255})
-	g.darknessOverlay.Draw(dctx)
+	g.darknessOverlay.Draw(&g.dctx)
 
 	for _, t := range g.updateDrawers {
-		t.Draw(dctx)
+		t.Draw(&g.dctx)
 	}
 	op = &ebiten.DrawImageOptions{}
 	screen.DrawImage(g.midlay, op)
@@ -109,14 +100,16 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	screen.DrawImage(g.darknessOverlay.Image, op)
 
-	dctx.Target = screen
-	g.cursor.Draw(dctx)
+	g.dctx.Target = screen
+	g.cursor.Draw(&g.dctx)
 }
 
 func (g *Game) Layout(ow, oh int) (int, int) {
-	if g.width != float64(ow) || g.height != float64(oh) {
-		g.width = float64(ow)
-		g.height = float64(oh)
+	if g.dctx.Width != float64(ow) || g.dctx.Height != float64(oh) {
+		g.dctx.Width = float64(ow)
+		g.dctx.Height = float64(oh)
+		g.gctx.Width = float64(ow)
+		g.gctx.Height = float64(oh)
 		g.darknessOverlay.Resize(ow, oh)
 		g.midlay = ebiten.NewImage(ow, oh)
 	}
