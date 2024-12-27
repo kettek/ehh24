@@ -87,7 +87,6 @@ func (g *Game) Update() error {
 	g.insys.Update()
 
 	startProfile("update")
-
 	updateables := g.referables.Updateables()
 	var changes []Change
 	for _, t := range updateables {
