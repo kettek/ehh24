@@ -62,10 +62,14 @@ func NewGame() *Game {
 	g.gctx.Zoom = g.geom.Element(0, 0)
 
 	vis := NewVisibilityOverlay(320, 240)
-	vis.SetPriority(ables.PriorityOverlay)
+	vis.SetPriority(ables.PriorityOverlay + 1000)
 	vis.SetTag("visibility")
 
-	g.referables = Referables{t, t1, t2, vis, c}
+	sno := NewSnoverlay(320, 240)
+	sno.SetPriority(ables.PriorityOverlay)
+	sno.SetTag("snow")
+
+	g.referables = Referables{t, t1, t2, sno, vis, c}
 
 	g.midlay = ebiten.NewImage(320, 240)
 
