@@ -2,11 +2,17 @@ package game
 
 import "github.com/hajimehoshi/ebiten/v2"
 
+type UpdateDrawer interface {
+	Update(ctx *DrawContext) []Change
+	Draw(ctx *DrawContext)
+}
+
 type DrawContext struct {
 	Width  float64
 	Height float64
 	Target *ebiten.Image
-	GeoM   ebiten.GeoM
+	Op     *ebiten.DrawImageOptions
+	//GeoM   ebiten.GeoM
 }
 
 func (d *DrawContext) MousePosition() (float64, float64) {
@@ -23,15 +29,15 @@ func (d *DrawContext) MousePosition() (float64, float64) {
 		y = int(d.Height)
 	}
 
-	scaleX := d.GeoM.Element(0, 0)
-	scaleY := d.GeoM.Element(1, 1)
+	scaleX := d.Op.GeoM.Element(0, 0)
+	scaleY := d.Op.GeoM.Element(1, 1)
 
 	return float64(x) / scaleX, float64(y) / scaleY
 }
 
 func (d *DrawContext) Size() (float64, float64) {
-	scaleX := d.GeoM.Element(0, 0)
-	scaleY := d.GeoM.Element(1, 1)
+	scaleX := d.Op.GeoM.Element(0, 0)
+	scaleY := d.Op.GeoM.Element(1, 1)
 
 	return d.Width / scaleX, d.Height / scaleY
 }

@@ -3,7 +3,7 @@ package game
 import "math"
 
 type Action interface {
-	Apply(t *Thinger)
+	Apply(t *Thinger) []Change
 	Done() bool
 }
 
@@ -16,7 +16,7 @@ func (a *ActionLook) Done() bool {
 	return true
 }
 
-func (a *ActionLook) Apply(t *Thinger) {
+func (a *ActionLook) Apply(t *Thinger) (c []Change) {
 	t.lookX = a.LookX
 	t.lookY = a.LookY
 
@@ -36,6 +36,14 @@ func (a *ActionLook) Apply(t *Thinger) {
 			t.lookUp = false
 		}
 	}
+
+	c = append(c, &ChangeDarknessOverlay{
+		X:     t.X,
+		Y:     t.Y - float64(t.stax.Stax.SliceHeight)/2,
+		Angle: math.Atan2(t.lookY+0.4, t.lookX), // Fix this hardcoded 0.4... it's the offset we need for eye position
+	})
+
+	return c
 }
 
 type ActionPosition struct {
@@ -46,9 +54,10 @@ func (a *ActionPosition) Done() bool {
 	return true
 }
 
-func (a *ActionPosition) Apply(t *Thinger) {
+func (a *ActionPosition) Apply(t *Thinger) []Change {
 	t.X = a.X
 	t.Y = a.Y
+	return nil
 }
 
 type ActionMoveTo struct {
@@ -56,7 +65,7 @@ type ActionMoveTo struct {
 	done        bool
 }
 
-func (a *ActionMoveTo) Apply(t *Thinger) {
+func (a *ActionMoveTo) Apply(t *Thinger) (c []Change) {
 	dx := a.X - t.X
 	dy := a.Y - t.Y
 	dist := math.Sqrt(dx*dx + dy*dy)
@@ -68,7 +77,7 @@ func (a *ActionMoveTo) Apply(t *Thinger) {
 		t.walking = false
 		t.walkTicker = 0
 		t.faceUp = false
-		return
+		return nil
 	}
 	t.walking = true
 	t.walkTicker++
@@ -84,6 +93,14 @@ func (a *ActionMoveTo) Apply(t *Thinger) {
 	}
 	t.X += dx / dist * a.Speed
 	t.Y += dy / dist * a.Speed * 0.6
+
+	c = append(c, &ChangeDarknessOverlay{
+		X:     t.X,
+		Y:     t.Y - float64(t.stax.Stax.SliceHeight)/2,
+		Angle: math.Atan2(t.lookY+0.4, t.lookX), // Fix this hardcoded 0.4... it's the offset we need for eye position
+	})
+
+	return c
 }
 
 func (a *ActionMoveTo) Done() bool {

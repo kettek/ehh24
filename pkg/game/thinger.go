@@ -33,14 +33,14 @@ func NewThinger(name string) *Thinger {
 	}
 }
 
-func (t *Thinger) Update(ctx *DrawContext) error {
+func (t *Thinger) Update(ctx *DrawContext) (changes []Change) {
 	t.ticker++
 	if t.controller != nil {
 		for _, a := range t.controller.Update(ctx, t) {
-			a.Apply(t)
+			changes = append(changes, a.Apply(t)...)
 		}
 	}
-	return nil
+	return changes
 }
 
 func (t *Thinger) sortedSlices() []int {
@@ -96,7 +96,8 @@ func (t *Thinger) Draw(ctx *DrawContext) {
 
 		opts.GeoM.Translate(t.X, t.Y)
 
-		opts.GeoM.Concat(ctx.GeoM)
+		opts.Blend = ctx.Op.Blend
+		opts.GeoM.Concat(ctx.Op.GeoM)
 
 		sub := t.stax.EbiImage.SubImage(image.Rect(slice.X, slice.Y, slice.X+t.stax.Stax.SliceWidth, slice.Y+t.stax.Stax.SliceHeight)).(*ebiten.Image)
 		ctx.Target.DrawImage(sub, opts)
