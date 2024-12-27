@@ -86,21 +86,27 @@ func NewGame() *Game {
 func (g *Game) Update() error {
 	g.insys.Update()
 
-	updateables := g.referables.Updateables()
+	startProfile("update")
 
+	updateables := g.referables.Updateables()
 	var changes []Change
 	for _, t := range updateables {
 		changes = append(changes, t.Update(&g.gctx)...)
 	}
+	endProfile("update")
 
+	startProfile("changes")
 	for _, c := range changes {
 		c.Apply(g)
 	}
+	endProfile("changes")
 
+	startProfile("sort drawables")
 	// Probably shouldn't do this, but...
 	for _, t := range g.referables.Drawables() {
 		t.SetOffset(int(t.Y()))
 	}
+	endProfile("sort drawables")
 
 	return nil
 }
@@ -118,20 +124,33 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	g.debugUI.Draw(&g.dctx)
 
+	startProfile("draw drawables")
 	for _, t := range g.referables.SortedDrawables() {
 		t.Draw(&g.dctx)
-		ebitenutil.DebugPrintAt(g.debugUI.img, fmt.Sprintf("%s:%d", t.Tag(), t.Priority()), int(t.X()*g.gctx.Zoom), int(t.Y()*g.gctx.Zoom))
+		if debug {
+			ebitenutil.DebugPrintAt(g.debugUI.img, fmt.Sprintf("%s:%d", t.Tag(), t.Priority()), int(t.X()*g.gctx.Zoom), int(t.Y()*g.gctx.Zoom))
+		}
 	}
+	endProfile("draw drawables")
+
 	op = &ebiten.DrawImageOptions{}
 	screen.DrawImage(g.midlay, op)
 
 	op.Blend = ebiten.BlendDestinationAtop
 
+	startProfile("draw overlays")
 	for _, t := range g.referables.Overlays() {
 		t.DrawTo(screen)
 	}
+	endProfile("draw overlays")
 
-	g.debugUI.DrawTo(screen)
+	// Print our debuggies
+	if debug {
+		for i, p := range profiles {
+			ebitenutil.DebugPrintAt(g.debugUI.img, fmt.Sprintf("%03d %s", p.duration.Milliseconds(), p.name), 0, 30+i*10)
+		}
+		g.debugUI.DrawTo(screen)
+	}
 }
 
 // Layout is a thing, yo.
