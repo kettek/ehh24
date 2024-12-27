@@ -1,9 +1,11 @@
 package game
 
 import (
+	"fmt"
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/kettek/ehh24/pkg/game/ables"
 	"github.com/kettek/ehh24/pkg/game/context"
 	input "github.com/quasilyte/ebitengine-input"
@@ -14,6 +16,8 @@ type Game struct {
 	insys  input.System
 	geom   ebiten.GeoM
 	midlay *ebiten.Image
+
+	debugUI *TargetOverlay
 
 	referables Referables
 
@@ -69,6 +73,8 @@ func NewGame() *Game {
 	sno.SetPriority(ables.PriorityOverlay)
 	sno.SetTag("snow")
 
+	g.debugUI = NewTargetOverlay(320, 240)
+
 	g.referables = Referables{t, t1, t2, sno, vis, c}
 
 	g.midlay = ebiten.NewImage(320, 240)
@@ -80,13 +86,20 @@ func NewGame() *Game {
 func (g *Game) Update() error {
 	g.insys.Update()
 
+	updateables := g.referables.Updateables()
+
 	var changes []Change
-	for _, t := range g.referables.Updateables() {
+	for _, t := range updateables {
 		changes = append(changes, t.Update(&g.gctx)...)
 	}
 
 	for _, c := range changes {
 		c.Apply(g)
+	}
+
+	// Probably shouldn't do this, but...
+	for _, t := range g.referables.Drawables() {
+		t.SetOffset(int(t.Y()))
 	}
 
 	return nil
@@ -103,8 +116,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.midlay.Clear()
 	g.midlay.Fill(color.NRGBA{20, 20, 20, 255})
 
+	g.debugUI.Draw(&g.dctx)
+
 	for _, t := range g.referables.SortedDrawables() {
 		t.Draw(&g.dctx)
+		ebitenutil.DebugPrintAt(g.debugUI.img, fmt.Sprintf("%s:%d", t.Tag(), t.Priority()), int(t.X()*g.gctx.Zoom), int(t.Y()*g.gctx.Zoom))
 	}
 	op = &ebiten.DrawImageOptions{}
 	screen.DrawImage(g.midlay, op)
@@ -115,7 +131,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		t.DrawTo(screen)
 	}
 
-	g.dctx.Target = screen
+	g.debugUI.DrawTo(screen)
 }
 
 // Layout is a thing, yo.
@@ -129,6 +145,7 @@ func (g *Game) Layout(ow, oh int) (int, int) {
 		for _, t := range g.referables.Overlays() {
 			t.Resize(ow, oh)
 		}
+		g.debugUI.Resize(ow, oh)
 	}
 	return ow, oh
 }
