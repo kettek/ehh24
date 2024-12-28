@@ -121,6 +121,10 @@ func (t *ToolStatic) Button(s *State, b ebiten.MouseButton, pressed bool) {
 
 // Move handles mouse movement.
 func (t *ToolStatic) Move(s *State, x, y int) {
+	if s.gridLock {
+		x += int(s.gridWidth / 2)
+		y += int(s.gridHeight)
+	}
 	t.pending.Point.X = x
 	t.pending.Point.Y = y
 }
@@ -168,6 +172,10 @@ func (t *ToolFloor) Button(s *State, b ebiten.MouseButton, pressed bool) {
 
 // Move handles mouse movement.
 func (t *ToolFloor) Move(s *State, x, y int) {
+	if s.gridLock {
+		x += int(s.gridWidth / 2)
+		y += int(s.gridHeight)
+	}
 	t.pending.Point.X = x
 	t.pending.Point.Y = y
 }

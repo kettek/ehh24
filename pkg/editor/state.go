@@ -379,11 +379,6 @@ func (s *State) CursorPosition() (int, int) {
 	if s.gridLock {
 		x = int((float64(x)/s.scale+s.scrollX)/s.gridWidth) * int(s.gridWidth)
 		y = int((float64(y)/s.scale+s.scrollY)/s.gridHeight) * int(s.gridHeight)
-		// Ehh...
-		if s.tool.Name() != (ToolPolygon{}).Name() {
-			x += int(s.gridWidth / 2)
-			y += int(s.gridHeight)
-		}
 		return x, y
 	}
 
