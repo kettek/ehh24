@@ -5,6 +5,7 @@ import (
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 // Place is a place in za warudo.
@@ -57,5 +58,8 @@ func (s *Static) Draw(screen *ebiten.Image, op *ebiten.DrawImageOptions) {
 			sub := stax.EbiImage.SubImage(image.Rect(slice.X, slice.Y, slice.X+stax.Stax.SliceWidth, slice.Y+stax.Stax.SliceHeight)).(*ebiten.Image)
 			screen.DrawImage(sub, opts)
 		}
+	}
+	if s.Tag != "" {
+		ebitenutil.DebugPrintAt(screen, s.Tag, (s.Point.X-stax.Stax.SliceWidth/2)*int(scale), (s.Point.Y-stax.Stax.SliceHeight/2)*int(scale))
 	}
 }

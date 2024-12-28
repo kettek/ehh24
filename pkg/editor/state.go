@@ -161,6 +161,12 @@ func (s *State) windowStaxies(ctx *debugui.Context) {
 			if s.selectedStaxIndex >= 0 && s.selectedStaxIndex < len(s.place.Statics) {
 				stax := s.place.Statics[s.selectedStaxIndex]
 				ctx.Label(fmt.Sprintf("Index: %d", s.selectedStaxIndex))
+
+				ctx.Label("Tag")
+				if ctx.TextBox(&stax.Tag)&debugui.ResponseSubmit != 0 {
+					ctx.SetFocus()
+				}
+
 				s.place.Statics[s.selectedStaxIndex] = stax
 			}
 		}
