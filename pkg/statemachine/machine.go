@@ -11,9 +11,11 @@ type Machine struct {
 
 // NewMachine does a thing.
 func NewMachine(s State) *Machine {
-	return &Machine{
+	m := &Machine{
 		state: s,
 	}
+	m.state.Init()
+	return m
 }
 
 // Update updates the game state.
@@ -43,6 +45,7 @@ func (g *Machine) Layout(ow, oh int) (int, int) {
 // SetState sets the state.
 func (g *Machine) SetState(s State) {
 	g.state = s
+	g.state.Init()
 	g.state.Layout(g.w, g.h)
 }
 

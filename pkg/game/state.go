@@ -38,7 +38,6 @@ func NewState() *State {
 	c.controller = NewCursorController()
 	c.originX = -0.5
 	c.originY = -0.5
-	ebiten.SetCursorMode(ebiten.CursorModeHidden)
 	c.SetPriority(ables.PriorityBeyond)
 	c.SetTag("cursor")
 
@@ -82,6 +81,11 @@ func NewState() *State {
 	g.midlay = ebiten.NewImage(320, 240)
 
 	return g
+}
+
+// Init initializes the game.
+func (g *State) Init() {
+	ebiten.SetCursorMode(ebiten.CursorModeHidden)
 }
 
 // Update updates the game.
