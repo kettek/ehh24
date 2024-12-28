@@ -101,7 +101,7 @@ func (t *ToolStatic) Button(s *State, b ebiten.MouseButton, pressed bool) {
 			Point: image.Pt(t.pending.Point.X, t.pending.Point.Y),
 		})
 	} else if b == ebiten.MouseButtonLeft && pressed {
-		s.selectedStaxIndex = -1
+		s.selectedStaticIndex = -1
 		for i, stax := range s.place.Statics {
 			if stack, ok := res.Staxii[stax.Name]; ok {
 				x1 := stax.Point.X - stack.Stax.SliceWidth/2
@@ -109,7 +109,7 @@ func (t *ToolStatic) Button(s *State, b ebiten.MouseButton, pressed bool) {
 				x2 := stax.Point.X + stack.Stax.SliceWidth/2
 				y2 := stax.Point.Y
 				if t.pending.Point.X >= x1 && t.pending.Point.X <= x2 && t.pending.Point.Y >= y1 && t.pending.Point.Y <= y2 {
-					s.selectedStaxIndex = i
+					s.selectedStaticIndex = i
 					break
 				}
 			}
@@ -148,7 +148,7 @@ func (t *ToolFloor) Button(s *State, b ebiten.MouseButton, pressed bool) {
 			Point: image.Pt(t.pending.Point.X, t.pending.Point.Y),
 		})
 	} else if b == ebiten.MouseButtonLeft && pressed {
-		s.selectedStaxIndex = -1
+		s.selectedFloorIndex = -1
 		for i, stax := range s.place.Floor {
 			if stack, ok := res.Staxii[stax.Name]; ok {
 				x1 := stax.Point.X - stack.Stax.SliceWidth/2
@@ -156,7 +156,7 @@ func (t *ToolFloor) Button(s *State, b ebiten.MouseButton, pressed bool) {
 				x2 := stax.Point.X + stack.Stax.SliceWidth/2
 				y2 := stax.Point.Y
 				if t.pending.Point.X >= x1 && t.pending.Point.X <= x2 && t.pending.Point.Y >= y1 && t.pending.Point.Y <= y2 {
-					s.selectedStaxIndex = i
+					s.selectedFloorIndex = i
 					break
 				}
 			}

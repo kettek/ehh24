@@ -19,10 +19,11 @@ type State struct {
 	ui          *debugui.DebugUI
 	windowAreas map[string]image.Rectangle
 	//
-	tool              Tool
-	currentStax       string
-	selectedStaxIndex int
+	tool                Tool
+	currentStax         string
+	selectedStaticIndex int
 	// TODO: Move this to a map struct
+	selectedFloorIndex   int
 	selectedPolygonIndex int
 	pendingPolygon       res.Polygon
 	place                res.Place
@@ -130,7 +131,7 @@ func (s *State) Layout(ow, oh int) (int, int) {
 }
 
 func (s *State) windowFile(ctx *debugui.Context) {
-	ctx.Window("File", image.Rect(20, 20, 170, 74), func(resp debugui.Response, layout debugui.Layout) {
+	ctx.Window("File", posFile.Rect(), func(resp debugui.Response, layout debugui.Layout) {
 		s.windowAreas["File"] = layout.Rect
 		ctx.SetLayoutRow([]int{40, 40, 40}, 0)
 		if ctx.Button("New") != 0 {
@@ -159,7 +160,7 @@ func (s *State) windowFile(ctx *debugui.Context) {
 }
 
 func (s *State) windowTools(ctx *debugui.Context) {
-	ctx.Window("Tools", image.Rect(350, 20, 650, 74), func(resp debugui.Response, layout debugui.Layout) {
+	ctx.Window("Tools", posTools.Rect(), func(resp debugui.Response, layout debugui.Layout) {
 		s.windowAreas["Tools"] = layout.Rect
 		ctx.SetLayoutRow([]int{80, 80, 80, 80}, 0)
 		if ctx.Button(ToolNone{}.Name()) != 0 {
@@ -175,13 +176,13 @@ func (s *State) windowTools(ctx *debugui.Context) {
 }
 
 func (s *State) windowStaxies(ctx *debugui.Context) {
-	ctx.Window("Staxii", image.Rect(20, 150, 200, 500), func(resp debugui.Response, layout debugui.Layout) {
+	ctx.Window("Staxii", posToolItems.Rect(), func(resp debugui.Response, layout debugui.Layout) {
 		s.windowAreas["ToolItems"] = layout.Rect
 
 		if ctx.Header("Current Static", true) != 0 {
-			if s.selectedStaxIndex >= 0 && s.selectedStaxIndex < len(s.place.Statics) {
-				stax := s.place.Statics[s.selectedStaxIndex]
-				ctx.Label(fmt.Sprintf("Index: %d", s.selectedStaxIndex))
+			if s.selectedStaticIndex >= 0 && s.selectedStaticIndex < len(s.place.Statics) {
+				stax := s.place.Statics[s.selectedStaticIndex]
+				ctx.Label(fmt.Sprintf("Index: %d", s.selectedStaticIndex))
 
 				ctx.SetLayoutRow([]int{25, -1}, 0)
 				ctx.Label("Tag")
@@ -190,7 +191,7 @@ func (s *State) windowStaxies(ctx *debugui.Context) {
 				}
 				ctx.SetLayoutRow([]int{-1}, 0)
 
-				s.place.Statics[s.selectedStaxIndex] = stax
+				s.place.Statics[s.selectedStaticIndex] = stax
 			}
 		}
 
@@ -203,14 +204,14 @@ func (s *State) windowStaxies(ctx *debugui.Context) {
 }
 
 func (s *State) windowFloors(ctx *debugui.Context) {
-	ctx.Window("Floors", image.Rect(20, 150, 200, 500), func(resp debugui.Response, layout debugui.Layout) {
-		s.windowAreas["ToolItems"] = layout.Rect
+	ctx.Window("Floors", posToolItems.Rect(), func(resp debugui.Response, layout debugui.Layout) {
+		//posToolItems = layout.Rect
 
 		if ctx.Header("Current Floor", true) != 0 {
-			if s.selectedStaxIndex >= 0 && s.selectedStaxIndex < len(s.place.Statics) {
-				stax := s.place.Floor[s.selectedStaxIndex]
-				ctx.Label(fmt.Sprintf("Index: %d", s.selectedStaxIndex))
-				s.place.Floor[s.selectedStaxIndex] = stax
+			if s.selectedFloorIndex >= 0 && s.selectedFloorIndex < len(s.place.Floor) {
+				stax := s.place.Floor[s.selectedFloorIndex]
+				ctx.Label(fmt.Sprintf("Index: %d", s.selectedFloorIndex))
+				s.place.Floor[s.selectedFloorIndex] = stax
 			}
 		}
 
@@ -223,7 +224,7 @@ func (s *State) windowFloors(ctx *debugui.Context) {
 }
 
 func (s *State) windowPolygons(ctx *debugui.Context) {
-	ctx.Window("Polygons", image.Rect(20, 150, 200, 500), func(resp debugui.Response, layout debugui.Layout) {
+	ctx.Window("Polygons", posToolItems.Rect(), func(resp debugui.Response, layout debugui.Layout) {
 		s.windowAreas["ToolItems"] = layout.Rect
 
 		if ctx.Header("Current Polygon", true) != 0 {
@@ -279,7 +280,7 @@ func (s *State) windowPolygons(ctx *debugui.Context) {
 }
 
 func (s *State) windowOptions(ctx *debugui.Context) {
-	ctx.Window("Options", image.Rect(1060, 80, 1260, 280), func(resp debugui.Response, layout debugui.Layout) {
+	ctx.Window("Options", posOptions.Rect(), func(resp debugui.Response, layout debugui.Layout) {
 		s.windowAreas["Options"] = layout.Rect
 		ctx.SetLayoutRow([]int{40, 30, 30, -1}, 0)
 		ctx.Label("Zoom")
@@ -343,4 +344,20 @@ func (s *State) sortedStaxii(si map[string]res.StaxImage) []sortedStax {
 		return strings.Compare(a.Name, b.Name)
 	})
 	return ss
+}
+
+var posFile = posSize{X: 20, Y: 20, W: 150, H: 54}
+var posTools = posSize{X: 350, Y: 20, W: 360, H: 54}
+var posToolItems = posSize{X: 20, Y: 150, W: 180, H: 350}
+var posOptions = posSize{X: 1060, Y: 80, W: 200, H: 200}
+
+type posSize struct {
+	X int
+	Y int
+	W int
+	H int
+}
+
+func (p posSize) Rect() image.Rectangle {
+	return image.Rect(p.X, p.Y, p.X+p.W, p.Y+p.H)
 }
