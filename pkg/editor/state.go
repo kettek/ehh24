@@ -22,8 +22,8 @@ type State struct {
 	currentStax string
 	// TODO: Move this to a map struct
 	selectedPolygonIndex int
-	pendingPolygon       Polygon
-	polygons             []*Polygon
+	pendingPolygon       res.Polygon
+	place                res.Place
 }
 
 // NewState creates a new editor state.
@@ -49,6 +49,7 @@ func (s *State) Update() statemachine.State {
 		} else if s.tool.Name() == (ToolPolygon{}).Name() {
 			s.windowPolygons(ctx)
 		}
+		s.windowFile(ctx)
 	})
 
 	x, y := ebiten.CursorPosition()
@@ -84,7 +85,7 @@ func (s *State) Draw(screen *ebiten.Image) {
 		}
 	}
 
-	for _, p := range s.polygons {
+	for _, p := range s.place.Polygons {
 		p.Draw(screen)
 	}
 
@@ -98,8 +99,29 @@ func (s *State) Layout(ow, oh int) (int, int) {
 	return ow, oh
 }
 
+func (s *State) windowFile(ctx *debugui.Context) {
+	ctx.Window("File", image.Rect(20, 20, 170, 74), func(resp debugui.Response, layout debugui.Layout) {
+		s.windowAreas["File"] = layout.Rect
+		ctx.SetLayoutRow([]int{40, 40, 40}, 0)
+		if ctx.Button("New") != 0 {
+		}
+		ctx.Popup("Open", func(resp debugui.Response, layout debugui.Layout) {
+			for _, place := range res.Places {
+				if ctx.Button(place.Name) != 0 {
+					s.place = place
+				}
+			}
+		})
+		if ctx.Button("Open") != 0 {
+			ctx.OpenPopup("Open")
+		}
+		if ctx.Button("Save") != 0 {
+		}
+	})
+}
+
 func (s *State) windowTools(ctx *debugui.Context) {
-	ctx.Window("Tools", image.Rect(350, 20, 650, 75), func(resp debugui.Response, layout debugui.Layout) {
+	ctx.Window("Tools", image.Rect(350, 20, 650, 74), func(resp debugui.Response, layout debugui.Layout) {
 		s.windowAreas["Tools"] = layout.Rect
 		ctx.SetLayoutRow([]int{80, 80, 80, 80}, 0)
 		if ctx.Button(ToolStax{}.Name()) != 0 {
@@ -111,7 +133,7 @@ func (s *State) windowTools(ctx *debugui.Context) {
 }
 
 func (s *State) windowStaxies(ctx *debugui.Context) {
-	ctx.Window("Staxii", image.Rect(50, 50, 200, 400), func(resp debugui.Response, layout debugui.Layout) {
+	ctx.Window("Staxii", image.Rect(20, 150, 200, 500), func(resp debugui.Response, layout debugui.Layout) {
 		s.windowAreas["ToolItems"] = layout.Rect
 		for _, stax := range s.sortedStaxii(res.Staxii) {
 			if ctx.Button(stax.Name) != 0 {
@@ -122,24 +144,24 @@ func (s *State) windowStaxies(ctx *debugui.Context) {
 }
 
 func (s *State) windowPolygons(ctx *debugui.Context) {
-	ctx.Window("Polygons", image.Rect(50, 50, 200, 400), func(resp debugui.Response, layout debugui.Layout) {
+	ctx.Window("Polygons", image.Rect(20, 150, 200, 500), func(resp debugui.Response, layout debugui.Layout) {
 		s.windowAreas["ToolItems"] = layout.Rect
 
 		if ctx.Header("Current Polygon", true) != 0 {
-			if s.selectedPolygonIndex >= 0 && s.selectedPolygonIndex < len(s.polygons) {
+			if s.selectedPolygonIndex >= 0 && s.selectedPolygonIndex < len(s.place.Polygons) {
 				delete(s.windowAreas, "Popup")
-				polygon := s.polygons[s.selectedPolygonIndex]
+				polygon := s.place.Polygons[s.selectedPolygonIndex]
 				ctx.Label(fmt.Sprintf("Index: %d", s.selectedPolygonIndex))
-				ctx.Popup("Change Kind", func(res debugui.Response, layout debugui.Layout) {
+				ctx.Popup("Change Kind", func(resp debugui.Response, layout debugui.Layout) {
 					s.windowAreas["Popup"] = layout.Rect
 					if ctx.Button("None") != 0 {
-						polygon.Kind = PolygonKindNone
+						polygon.Kind = res.PolygonKindNone
 					}
 					if ctx.Button("Block") != 0 {
-						polygon.Kind = PolygonKindBlock
+						polygon.Kind = res.PolygonKindBlock
 					}
 					if ctx.Button("Trigger") != 0 {
-						polygon.Kind = PolygonKindTrigger
+						polygon.Kind = res.PolygonKindTrigger
 					}
 				})
 				if ctx.Button(fmt.Sprintf("Kind: %s", polygon.Kind.String())) != 0 {
@@ -151,12 +173,12 @@ func (s *State) windowPolygons(ctx *debugui.Context) {
 					ctx.SetFocus()
 				}
 				ctx.SetLayoutRow([]int{-1}, 0)
-				s.polygons[s.selectedPolygonIndex] = polygon
+				s.place.Polygons[s.selectedPolygonIndex] = polygon
 			}
 
 			if ctx.Button("Delete") != 0 {
-				if s.selectedPolygonIndex >= 0 && s.selectedPolygonIndex < len(s.polygons) {
-					s.polygons = append(s.polygons[:s.selectedPolygonIndex], s.polygons[s.selectedPolygonIndex+1:]...)
+				if s.selectedPolygonIndex >= 0 && s.selectedPolygonIndex < len(s.place.Polygons) {
+					s.place.Polygons = append(s.place.Polygons[:s.selectedPolygonIndex], s.place.Polygons[s.selectedPolygonIndex+1:]...)
 				}
 			}
 
@@ -164,7 +186,7 @@ func (s *State) windowPolygons(ctx *debugui.Context) {
 		}
 
 		ctx.SetLayoutRow([]int{100}, 0)
-		for i, p := range s.polygons {
+		for i, p := range s.place.Polygons {
 			var str string
 			if p.Tag != "" {
 				str = p.Tag

@@ -2,6 +2,7 @@ package res
 
 import (
 	"embed"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"image"
@@ -13,6 +14,7 @@ import (
 )
 
 //go:embed *.png
+//go:embed places/*.json
 var f embed.FS
 
 type StaxImage struct {
@@ -25,6 +27,8 @@ var Staxii map[string]StaxImage = make(map[string]StaxImage)
 
 var Images map[string]*ebiten.Image = make(map[string]*ebiten.Image)
 
+var Places map[string]Place = make(map[string]Place)
+
 func GetStax(name string) (StaxImage, error) {
 	st, ok := Staxii[name]
 	if !ok {
@@ -34,19 +38,19 @@ func GetStax(name string) (StaxImage, error) {
 }
 
 func ReadAssets() error {
-	entries, err := f.ReadDir(".")
+	entries, err := ReadDir(".", "")
 	if err != nil {
 		return err
 	}
 	for _, e := range entries {
-		if strings.HasSuffix(e.Name(), ".png") {
-			data, err := f.ReadFile(e.Name())
+		if strings.HasSuffix(e, ".png") {
+			data, err := f.ReadFile(e)
 			if err != nil {
 				return err
 			}
 			st, err := stax.ReadStaxFromPNG(data)
 			if err != nil {
-				fmt.Println(err, "for", e.Name())
+				fmt.Println(err, "for", e)
 				//return err
 			}
 			png, _, err := image.Decode(strings.NewReader(string(data)))
@@ -55,15 +59,46 @@ func ReadAssets() error {
 			}
 			eimg := ebiten.NewImageFromImage(png)
 			if st == nil {
-				Images[e.Name()[:len(e.Name())-len(".png")]] = eimg
+				Images[e[:len(e)-len(".png")]] = eimg
 			} else {
-				Staxii[e.Name()[:len(e.Name())-len(".png")]] = StaxImage{
+				Staxii[e[:len(e)-len(".png")]] = StaxImage{
 					Stax:     *st,
 					Image:    png,
 					EbiImage: eimg,
 				}
 			}
+		} else if strings.HasSuffix(e, ".json") {
+			data, err := f.ReadFile(e)
+			if err != nil {
+				return err
+			}
+			var place Place
+			if err := json.Unmarshal(data, &place); err != nil {
+				return err
+			}
+			Places[e[:len(e)-len(".json")]] = place
 		}
 	}
 	return nil
+}
+
+func ReadDir(name string, prepend string) ([]string, error) {
+	entries, err := f.ReadDir(name)
+	if err != nil {
+		return nil, err
+	}
+	var names []string
+	for _, e := range entries {
+		if e.IsDir() {
+			n2, err := ReadDir(e.Name(), e.Name()+"/")
+			fmt.Println(n2, err)
+			if err != nil {
+				continue
+			}
+			names = append(names, n2...)
+			continue
+		}
+		names = append(names, prepend+e.Name())
+	}
+	return names, nil
 }

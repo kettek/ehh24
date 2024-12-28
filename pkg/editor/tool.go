@@ -6,6 +6,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
+	"github.com/kettek/ehh24/pkg/res"
 )
 
 // Tool is an interface for tools.
@@ -39,7 +40,7 @@ func (t *ToolNone) Draw(screen *ebiten.Image) {
 
 // ToolPolygon creates polygonal areas
 type ToolPolygon struct {
-	pending Polygon
+	pending res.Polygon
 	x, y    int
 }
 
@@ -56,7 +57,7 @@ func (t *ToolPolygon) Button(s *State, b ebiten.MouseButton, pressed bool) {
 		if len(t.pending.Points) < 3 {
 			return
 		}
-		s.polygons = append(s.polygons, &Polygon{Points: t.pending.Points})
+		s.place.Polygons = append(s.place.Polygons, &res.Polygon{Points: t.pending.Points})
 		t.pending.Points = nil
 	}
 }
