@@ -61,6 +61,8 @@ func (s *Static) Draw(screen *ebiten.Image, op *ebiten.DrawImageOptions) {
 		}
 	}
 	if s.Tag != "" {
-		ebitenutil.DebugPrintAt(screen, s.Tag, (s.Point.X-stax.Stax.SliceWidth/2)*int(scale), (s.Point.Y-stax.Stax.SliceHeight/2)*int(scale))
+		x := int(op.GeoM.Element(0, 2))
+		y := int(op.GeoM.Element(1, 2))
+		ebitenutil.DebugPrintAt(screen, s.Tag, (s.Point.X-stax.Stax.SliceWidth/2)*int(scale)+x, (s.Point.Y-stax.Stax.SliceHeight/2)*int(scale)+y)
 	}
 }

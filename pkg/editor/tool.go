@@ -78,7 +78,7 @@ func (t *ToolPolygon) Draw(screen *ebiten.Image, op *ebiten.DrawImageOptions) {
 		if i == 0 {
 			continue
 		}
-		vector.StrokeLine(screen, (float32(points[i-1].X)+x)*scale, (float32(points[i-1].Y)+y)*scale, (float32(pt.X)+x)*scale, (float32(pt.Y)+y)*scale, 2, color.White, true)
+		vector.StrokeLine(screen, (float32(points[i-1].X))*scale+x, (float32(points[i-1].Y))*scale+y, (float32(pt.X))*scale+x, (float32(pt.Y))*scale+y, 2, color.White, true)
 	}
 }
 

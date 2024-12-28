@@ -27,6 +27,10 @@ type State struct {
 	pendingPolygon       res.Polygon
 	place                res.Place
 	scale                float64
+	scrollX              float64
+	scrollY              float64
+	//
+	pressX, pressY int
 }
 
 // NewState creates a new editor state.
@@ -56,6 +60,9 @@ func (s *State) Update() statemachine.State {
 		} else if s.tool.Name() == (ToolPolygon{}).Name() {
 			s.windowPolygons(ctx)
 		}
+
+		s.windowOptions(ctx)
+
 		s.windowFile(ctx)
 	})
 
@@ -81,6 +88,14 @@ func (s *State) Update() statemachine.State {
 		} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonRight) {
 			s.tool.Button(s, ebiten.MouseButtonRight, true)
 		}
+		if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonMiddle) {
+			s.pressX, s.pressY = x, y
+		} else if ebiten.IsMouseButtonPressed(ebiten.MouseButtonMiddle) {
+			s.scrollX -= float64(x-s.pressX) / s.scale
+			s.scrollY -= float64(y-s.pressY) / s.scale
+			s.pressX, s.pressY = x, y
+		}
+
 	}
 
 	return nil
@@ -89,6 +104,7 @@ func (s *State) Update() statemachine.State {
 // Draw draws the editor state.
 func (s *State) Draw(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(-s.scrollX, -s.scrollY)
 	op.GeoM.Scale(s.scale, s.scale)
 
 	for _, s := range s.place.Floor {
@@ -262,10 +278,47 @@ func (s *State) windowPolygons(ctx *debugui.Context) {
 	})
 }
 
+func (s *State) windowOptions(ctx *debugui.Context) {
+	ctx.Window("Options", image.Rect(1060, 80, 1260, 280), func(resp debugui.Response, layout debugui.Layout) {
+		s.windowAreas["Options"] = layout.Rect
+		ctx.SetLayoutRow([]int{40, 30, 30, -1}, 0)
+		ctx.Label("Zoom")
+		if ctx.Button("-") != 0 {
+			s.scale--
+			if s.scale <= 0 {
+				s.scale = 1
+			}
+		}
+		if ctx.Button("+") != 0 {
+			s.scale++
+		}
+		if ctx.Number(&s.scale, 1, 4)&debugui.ResponseSubmit != 0 {
+			ctx.SetFocus()
+		}
+		ctx.SetLayoutRow([]int{-1}, 0)
+
+		ctx.SetLayoutRow([]int{40, 20, 20, 20, 20}, 0)
+		ctx.Label("Scroll")
+		if ctx.Button("^") != 0 {
+			s.scrollY -= 10
+		}
+		if ctx.Button("v") != 0 {
+			s.scrollY += 10
+		}
+		if ctx.Button("<") != 0 {
+			s.scrollX -= 10
+		}
+		if ctx.Button(">") != 0 {
+			s.scrollX += 10
+		}
+		ctx.SetLayoutRow([]int{-1}, 0)
+	})
+}
+
 // CursorPosition returns the cursor position.
 func (s *State) CursorPosition() (int, int) {
 	x, y := ebiten.CursorPosition()
-	return int(float64(x) / s.scale), int(float64(y) / s.scale)
+	return int(float64(x)/s.scale + s.scrollX), int(float64(y)/s.scale + s.scrollY)
 }
 
 type sortedStax struct {

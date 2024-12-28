@@ -65,12 +65,12 @@ func (p Polygon) Draw(screen *ebiten.Image, op *ebiten.DrawImageOptions) {
 		if i == 0 {
 			continue
 		}
-		vector.StrokeLine(screen, (float32(p.Points[i-1].X)+x)*scale, (float32(p.Points[i-1].Y)+y)*scale, (float32(pt.X)+x)*scale, (float32(pt.Y)+y)*scale, 5, p.Kind.Color(), true)
+		vector.StrokeLine(screen, (float32(p.Points[i-1].X))*scale+x, (float32(p.Points[i-1].Y))*scale+y, (float32(pt.X))*scale+x, (float32(pt.Y))*scale+y, 5, p.Kind.Color(), true)
 	}
 	if len(p.Points) > 0 && p.Tag != "" {
 		cx /= len(p.Points)
 		cy /= len(p.Points)
-		ebitenutil.DebugPrintAt(screen, p.Tag, (cx+int(x))*int(scale), (cy+int(y))*int(scale))
+		ebitenutil.DebugPrintAt(screen, p.Tag, (cx)*int(scale)+int(x), (cy)*int(scale)+int(y))
 	}
 }
 
