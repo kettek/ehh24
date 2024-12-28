@@ -80,6 +80,8 @@ func (t *ToolPolygon) Draw(screen *ebiten.Image, op *ebiten.DrawImageOptions) {
 		}
 		vector.StrokeLine(screen, (float32(points[i-1].X))*scale+x, (float32(points[i-1].Y))*scale+y, (float32(pt.X))*scale+x, (float32(pt.Y))*scale+y, 2, color.White, true)
 	}
+	// Draw a dot for the mouse pos
+	vector.DrawFilledCircle(screen, float32(t.cx)*scale+x, float32(t.cy)*scale+y, 2, color.White, true)
 }
 
 // ToolStatic is a tool for placing staxii.

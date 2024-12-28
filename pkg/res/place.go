@@ -44,7 +44,7 @@ func (s *Static) Draw(screen *ebiten.Image, op *ebiten.DrawImageOptions) {
 	for i, slice := range frame.Slices {
 		for j := 0; j < int(sliceDistanceEnd); j++ {
 			opts.GeoM.Reset()
-			opts.GeoM.Rotate(math.Pi / 30)
+			//opts.GeoM.Rotate(math.Pi / 30)
 			opts.GeoM.Translate(float64(stax.Stax.SliceWidth)*originX, float64(stax.Stax.SliceHeight)*originY)
 
 			opts.GeoM.Translate(float64(s.Point.X), float64(s.Point.Y))

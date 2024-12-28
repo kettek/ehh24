@@ -4,12 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"image"
+	"image/color"
 	"slices"
 	"strings"
 
 	"github.com/ebitengine/debugui"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/kettek/ehh24/pkg/res"
 	"github.com/kettek/ehh24/pkg/statemachine"
 )
@@ -30,6 +32,9 @@ type State struct {
 	scale                float64
 	scrollX              float64
 	scrollY              float64
+	gridWidth            float64
+	gridHeight           float64
+	gridLock             bool
 	//
 	pressX, pressY int
 }
@@ -41,6 +46,9 @@ func NewState() *State {
 		tool:        &ToolNone{},
 		windowAreas: make(map[string]image.Rectangle),
 		scale:       3,
+		gridWidth:   19,
+		gridHeight:  9,
+		gridLock:    true,
 	}
 }
 
@@ -110,6 +118,41 @@ func (s *State) Draw(screen *ebiten.Image) {
 
 	for _, s := range s.place.Floor {
 		s.Draw(screen, op)
+	}
+
+	// Grid.
+	rows := int(float64(screen.Bounds().Dy()) / s.gridHeight)
+	cols := int(float64(screen.Bounds().Dx()) / s.gridWidth)
+
+	for x := 1; x < cols; x++ {
+		x1 := float32(x) * float32(s.gridWidth)
+		x2 := float32(x) * float32(s.gridWidth)
+		y1 := float32(0)
+		y2 := float32(screen.Bounds().Dy())
+		x1 -= float32(s.scrollX)
+		x2 -= float32(s.scrollX)
+		y1 -= float32(s.scrollY)
+		y2 -= float32(s.scrollY)
+		x1 *= float32(s.scale)
+		x2 *= float32(s.scale)
+		y1 *= float32(s.scale)
+		y2 *= float32(s.scale)
+		vector.StrokeLine(screen, x1, y1, x2, y2, 1, color.RGBA{0x40, 0x40, 0x40, 0x40}, true)
+	}
+	for y := 1; y < rows; y++ {
+		x1 := float32(0)
+		x2 := float32(screen.Bounds().Dx())
+		y1 := float32(y) * float32(s.gridHeight)
+		y2 := float32(y) * float32(s.gridHeight)
+		x1 -= float32(s.scrollX)
+		x2 -= float32(s.scrollX)
+		y1 -= float32(s.scrollY)
+		y2 -= float32(s.scrollY)
+		x1 *= float32(s.scale)
+		x2 *= float32(s.scale)
+		y1 *= float32(s.scale)
+		y2 *= float32(s.scale)
+		vector.StrokeLine(screen, x1, y1, x2, y2, 1, color.RGBA{0x40, 0x40, 0x40, 0x40}, true)
 	}
 
 	for _, s := range s.place.Statics {
@@ -318,12 +361,32 @@ func (s *State) windowOptions(ctx *debugui.Context) {
 		ctx.Number(&s.scrollX, 1, 4)
 		ctx.Number(&s.scrollY, 1, 4)
 		ctx.SetLayoutRow([]int{-1}, 0)
+		ctx.SetLayoutRow([]int{40, 20, 50, 50}, 0)
+		ctx.Label("Grid")
+		ctx.Checkbox("", &s.gridLock)
+		if s.gridLock {
+			ctx.Number(&s.gridWidth, 1, 1)
+			ctx.Number(&s.gridHeight, 1, 1)
+		}
+		ctx.SetLayoutRow([]int{-1}, 0)
 	})
 }
 
 // CursorPosition returns the cursor position.
 func (s *State) CursorPosition() (int, int) {
 	x, y := ebiten.CursorPosition()
+
+	if s.gridLock {
+		x = int((float64(x)/s.scale+s.scrollX)/s.gridWidth) * int(s.gridWidth)
+		y = int((float64(y)/s.scale+s.scrollY)/s.gridHeight) * int(s.gridHeight)
+		// Ehh...
+		if s.tool.Name() != (ToolPolygon{}).Name() {
+			x += int(s.gridWidth / 2)
+			y += int(s.gridHeight)
+		}
+		return x, y
+	}
+
 	return int(float64(x)/s.scale + s.scrollX), int(float64(y)/s.scale + s.scrollY)
 }
 
