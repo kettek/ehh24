@@ -1,6 +1,7 @@
 package editor
 
 import (
+	"encoding/json"
 	"fmt"
 	"image"
 	"slices"
@@ -104,6 +105,7 @@ func (s *State) windowFile(ctx *debugui.Context) {
 		s.windowAreas["File"] = layout.Rect
 		ctx.SetLayoutRow([]int{40, 40, 40}, 0)
 		if ctx.Button("New") != 0 {
+			s.place = res.Place{}
 		}
 		ctx.Popup("Open", func(resp debugui.Response, layout debugui.Layout) {
 			for _, place := range res.Places {
@@ -116,6 +118,12 @@ func (s *State) windowFile(ctx *debugui.Context) {
 			ctx.OpenPopup("Open")
 		}
 		if ctx.Button("Save") != 0 {
+			// just debug for now
+			if d, err := json.Marshal(s.place); err != nil {
+				fmt.Println(err)
+			} else {
+				fmt.Println(string(d))
+			}
 		}
 	})
 }
