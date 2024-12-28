@@ -43,6 +43,7 @@ type State struct {
 // NewState creates a new editor state.
 func NewState() *State {
 	return &State{
+		place:       res.MakePlace(),
 		ui:          debugui.New(),
 		tool:        &ToolNone{},
 		windowAreas: make(map[string]image.Rectangle),
@@ -179,7 +180,7 @@ func (s *State) windowFile(ctx *debugui.Context) {
 		s.windowAreas["File"] = layout.Rect
 		ctx.SetLayoutRow([]int{50, 50, 50}, 0)
 		if ctx.Button("New") != 0 {
-			s.place = res.Place{}
+			s.place = res.MakePlace()
 		}
 		ctx.Popup("Open", func(resp debugui.Response, layout debugui.Layout) {
 			s.windowAreas["Popup"] = layout.Rect

@@ -14,6 +14,23 @@ type Place struct {
 	Polygons []*Polygon
 	Statics  []*Static
 	Floor    []*Static // We just use Static for floor, however Tag is ignored and Update() is not a thing.
+	Script   string
+}
+
+// MakePlace makes a place with a default script.
+func MakePlace() Place {
+	return Place{
+		Name:     "New Place",
+		Polygons: make([]*Polygon, 0),
+		Statics:  make([]*Static, 0),
+		Floor:    make([]*Static, 0),
+		Script: `func Enter(p *Place) {
+}
+func Leave(p *Place) {
+}
+/*func Tick(p *Place) {
+}*/`,
+	}
 }
 
 // Static is a stax

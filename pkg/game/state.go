@@ -93,9 +93,7 @@ func (g *State) Update() statemachine.State {
 		changes = append(changes, t.Update(&g.gctx)...)
 	}
 	// Also do place.
-	for _, t := range g.place.referables.Updateables() {
-		changes = append(changes, t.Update(&g.gctx)...)
-	}
+	changes = append(changes, g.place.Update(&g.gctx)...)
 	endProfile("update")
 
 	startProfile("changes")
