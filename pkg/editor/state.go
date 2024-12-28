@@ -51,6 +51,8 @@ func (s *State) Update() statemachine.State {
 		s.windowTools(ctx)
 		if s.tool.Name() == (ToolStatic{}).Name() {
 			s.windowStaxies(ctx)
+		} else if s.tool.Name() == (ToolFloor{}).Name() {
+			s.windowFloors(ctx)
 		} else if s.tool.Name() == (ToolPolygon{}).Name() {
 			s.windowPolygons(ctx)
 		}
@@ -88,10 +90,9 @@ func (s *State) Update() statemachine.State {
 func (s *State) Draw(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Scale(s.scale, s.scale)
-	if s.tool.Name() == (ToolPolygon{}).Name() {
-		if len(s.pendingPolygon.Points) > 0 {
-			s.pendingPolygon.Draw(screen, op)
-		}
+
+	for _, s := range s.place.Floor {
+		s.Draw(screen, op)
 	}
 
 	for _, s := range s.place.Statics {
@@ -145,10 +146,14 @@ func (s *State) windowTools(ctx *debugui.Context) {
 	ctx.Window("Tools", image.Rect(350, 20, 650, 74), func(resp debugui.Response, layout debugui.Layout) {
 		s.windowAreas["Tools"] = layout.Rect
 		ctx.SetLayoutRow([]int{80, 80, 80, 80}, 0)
-		if ctx.Button(ToolStatic{}.Name()) != 0 {
+		if ctx.Button(ToolNone{}.Name()) != 0 {
+			s.tool = &ToolNone{}
+		} else if ctx.Button(ToolStatic{}.Name()) != 0 {
 			s.tool = &ToolStatic{}
 		} else if ctx.Button(ToolPolygon{}.Name()) != 0 {
 			s.tool = &ToolPolygon{}
+		} else if ctx.Button(ToolFloor{}.Name()) != 0 {
+			s.tool = &ToolFloor{}
 		}
 	})
 }
@@ -176,6 +181,26 @@ func (s *State) windowStaxies(ctx *debugui.Context) {
 		for _, stax := range s.sortedStaxii(res.Staxii) {
 			if ctx.Button(stax.Name) != 0 {
 				s.tool.(*ToolStatic).pending.Name = stax.Name
+			}
+		}
+	})
+}
+
+func (s *State) windowFloors(ctx *debugui.Context) {
+	ctx.Window("Floors", image.Rect(20, 150, 200, 500), func(resp debugui.Response, layout debugui.Layout) {
+		s.windowAreas["ToolItems"] = layout.Rect
+
+		if ctx.Header("Current Floor", true) != 0 {
+			if s.selectedStaxIndex >= 0 && s.selectedStaxIndex < len(s.place.Statics) {
+				stax := s.place.Floor[s.selectedStaxIndex]
+				ctx.Label(fmt.Sprintf("Index: %d", s.selectedStaxIndex))
+				s.place.Floor[s.selectedStaxIndex] = stax
+			}
+		}
+
+		for _, stax := range s.sortedStaxii(res.Staxii) {
+			if ctx.Button(stax.Name) != 0 {
+				s.tool.(*ToolFloor).pending.Name = stax.Name
 			}
 		}
 	})

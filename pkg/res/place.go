@@ -13,6 +13,7 @@ type Place struct {
 	Name     string
 	Polygons []*Polygon
 	Statics  []*Static
+	Floor    []*Static // We just use Static for floor, however Tag is ignored and Update() is not a thing.
 }
 
 // Static is a stax
