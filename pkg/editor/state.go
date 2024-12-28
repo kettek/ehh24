@@ -44,6 +44,7 @@ func (s *State) Init() {
 // Update updates the editor state.
 func (s *State) Update() statemachine.State {
 	s.ui.Update(func(ctx *debugui.Context) {
+		delete(s.windowAreas, "Popup")
 		s.windowTools(ctx)
 		if s.tool.Name() == (ToolStax{}).Name() {
 			s.windowStaxies(ctx)
@@ -108,6 +109,7 @@ func (s *State) windowFile(ctx *debugui.Context) {
 			s.place = res.Place{}
 		}
 		ctx.Popup("Open", func(resp debugui.Response, layout debugui.Layout) {
+			s.windowAreas["Popup"] = layout.Rect
 			for _, place := range res.Places {
 				if ctx.Button(place.Name) != 0 {
 					s.place = place
@@ -157,7 +159,6 @@ func (s *State) windowPolygons(ctx *debugui.Context) {
 
 		if ctx.Header("Current Polygon", true) != 0 {
 			if s.selectedPolygonIndex >= 0 && s.selectedPolygonIndex < len(s.place.Polygons) {
-				delete(s.windowAreas, "Popup")
 				polygon := s.place.Polygons[s.selectedPolygonIndex]
 				ctx.Label(fmt.Sprintf("Index: %d", s.selectedPolygonIndex))
 				ctx.Popup("Change Kind", func(resp debugui.Response, layout debugui.Layout) {
