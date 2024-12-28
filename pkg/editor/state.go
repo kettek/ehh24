@@ -312,6 +312,11 @@ func (s *State) windowOptions(ctx *debugui.Context) {
 			s.scrollX += 10
 		}
 		ctx.SetLayoutRow([]int{-1}, 0)
+		ctx.SetLayoutRow([]int{40, 60, 60}, 0)
+		ctx.Label("X & Y")
+		ctx.Number(&s.scrollX, 1, 4)
+		ctx.Number(&s.scrollY, 1, 4)
+		ctx.SetLayoutRow([]int{-1}, 0)
 	})
 }
 
