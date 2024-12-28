@@ -49,7 +49,7 @@ func (s *State) Update() statemachine.State {
 	s.ui.Update(func(ctx *debugui.Context) {
 		delete(s.windowAreas, "Popup")
 		s.windowTools(ctx)
-		if s.tool.Name() == (ToolStax{}).Name() {
+		if s.tool.Name() == (ToolStatic{}).Name() {
 			s.windowStaxies(ctx)
 		} else if s.tool.Name() == (ToolPolygon{}).Name() {
 			s.windowPolygons(ctx)
@@ -145,8 +145,8 @@ func (s *State) windowTools(ctx *debugui.Context) {
 	ctx.Window("Tools", image.Rect(350, 20, 650, 74), func(resp debugui.Response, layout debugui.Layout) {
 		s.windowAreas["Tools"] = layout.Rect
 		ctx.SetLayoutRow([]int{80, 80, 80, 80}, 0)
-		if ctx.Button(ToolStax{}.Name()) != 0 {
-			s.tool = &ToolStax{}
+		if ctx.Button(ToolStatic{}.Name()) != 0 {
+			s.tool = &ToolStatic{}
 		} else if ctx.Button(ToolPolygon{}.Name()) != 0 {
 			s.tool = &ToolPolygon{}
 		}
@@ -157,15 +157,17 @@ func (s *State) windowStaxies(ctx *debugui.Context) {
 	ctx.Window("Staxii", image.Rect(20, 150, 200, 500), func(resp debugui.Response, layout debugui.Layout) {
 		s.windowAreas["ToolItems"] = layout.Rect
 
-		if ctx.Header("Current Stax", true) != 0 {
+		if ctx.Header("Current Static", true) != 0 {
 			if s.selectedStaxIndex >= 0 && s.selectedStaxIndex < len(s.place.Statics) {
 				stax := s.place.Statics[s.selectedStaxIndex]
 				ctx.Label(fmt.Sprintf("Index: %d", s.selectedStaxIndex))
 
+				ctx.SetLayoutRow([]int{25, -1}, 0)
 				ctx.Label("Tag")
 				if ctx.TextBox(&stax.Tag)&debugui.ResponseSubmit != 0 {
 					ctx.SetFocus()
 				}
+				ctx.SetLayoutRow([]int{-1}, 0)
 
 				s.place.Statics[s.selectedStaxIndex] = stax
 			}
@@ -173,7 +175,7 @@ func (s *State) windowStaxies(ctx *debugui.Context) {
 
 		for _, stax := range s.sortedStaxii(res.Staxii) {
 			if ctx.Button(stax.Name) != 0 {
-				s.tool.(*ToolStax).pending.Name = stax.Name
+				s.tool.(*ToolStatic).pending.Name = stax.Name
 			}
 		}
 	})
@@ -202,7 +204,7 @@ func (s *State) windowPolygons(ctx *debugui.Context) {
 				if ctx.Button(fmt.Sprintf("Kind: %s", polygon.Kind.String())) != 0 {
 					ctx.OpenPopup("Change Kind")
 				}
-				ctx.SetLayoutRow([]int{25, 80}, 0)
+				ctx.SetLayoutRow([]int{25, -1}, 0)
 				ctx.Label("Tag")
 				if ctx.TextBox(&polygon.Tag)&debugui.ResponseSubmit != 0 {
 					ctx.SetFocus()

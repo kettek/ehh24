@@ -82,19 +82,19 @@ func (t *ToolPolygon) Draw(screen *ebiten.Image, op *ebiten.DrawImageOptions) {
 	}
 }
 
-// ToolStax is a tool for placing staxii.
-type ToolStax struct {
+// ToolStatic is a tool for placing staxii.
+type ToolStatic struct {
 	pending res.Static
 	px, py  int
 }
 
 // Name returns the name of the tool.
-func (t ToolStax) Name() string {
+func (t ToolStatic) Name() string {
 	return "Stax"
 }
 
 // Button handles mouse button presses.
-func (t *ToolStax) Button(s *State, b ebiten.MouseButton, pressed bool) {
+func (t *ToolStatic) Button(s *State, b ebiten.MouseButton, pressed bool) {
 	if b == ebiten.MouseButtonRight && pressed {
 		s.place.Statics = append(s.place.Statics, &res.Static{
 			Name:  t.pending.Name,
@@ -118,13 +118,13 @@ func (t *ToolStax) Button(s *State, b ebiten.MouseButton, pressed bool) {
 }
 
 // Move handles mouse movement.
-func (t *ToolStax) Move(s *State, x, y int) {
+func (t *ToolStatic) Move(s *State, x, y int) {
 	t.pending.Point.X = x
 	t.pending.Point.Y = y
 }
 
 // Draw draws the tool.
-func (t *ToolStax) Draw(screen *ebiten.Image, op *ebiten.DrawImageOptions) {
+func (t *ToolStatic) Draw(screen *ebiten.Image, op *ebiten.DrawImageOptions) {
 	op.ColorScale.ScaleAlpha(0.5)
 	t.pending.Draw(screen, op)
 }
