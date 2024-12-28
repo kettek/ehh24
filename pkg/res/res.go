@@ -3,6 +3,7 @@ package res
 import (
 	"embed"
 	"errors"
+	"fmt"
 	"image"
 	_ "image/png"
 	"strings"
@@ -21,6 +22,8 @@ type StaxImage struct {
 }
 
 var Staxii map[string]StaxImage = make(map[string]StaxImage)
+
+var Images map[string]*ebiten.Image = make(map[string]*ebiten.Image)
 
 func GetStax(name string) (StaxImage, error) {
 	st, ok := Staxii[name]
@@ -43,17 +46,22 @@ func ReadAssets() error {
 			}
 			st, err := stax.ReadStaxFromPNG(data)
 			if err != nil {
-				return err
+				fmt.Println(err, "for", e.Name())
+				//return err
 			}
 			png, _, err := image.Decode(strings.NewReader(string(data)))
 			if err != nil {
 				return err
 			}
 			eimg := ebiten.NewImageFromImage(png)
-			Staxii[e.Name()[:len(e.Name())-len(".png")]] = StaxImage{
-				Stax:     *st,
-				Image:    png,
-				EbiImage: eimg,
+			if st == nil {
+				Images[e.Name()[:len(e.Name())-len(".png")]] = eimg
+			} else {
+				Staxii[e.Name()[:len(e.Name())-len(".png")]] = StaxImage{
+					Stax:     *st,
+					Image:    png,
+					EbiImage: eimg,
+				}
 			}
 		}
 	}
