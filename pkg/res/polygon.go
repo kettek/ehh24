@@ -52,12 +52,15 @@ func (k PolygonKind) Color() color.NRGBA {
 }
 
 // Draw draws the polygon.
-func (p Polygon) Draw(screen *ebiten.Image) {
+func (p Polygon) Draw(screen *ebiten.Image, op *ebiten.DrawImageOptions) {
+	scale := float32(op.GeoM.Element(0, 0))
+	x := float32(op.GeoM.Element(0, 2))
+	y := float32(op.GeoM.Element(1, 2))
 	for i, pt := range p.Points {
 		if i == 0 {
 			continue
 		}
-		vector.StrokeLine(screen, float32(p.Points[i-1].X), float32(p.Points[i-1].Y), float32(pt.X), float32(pt.Y), 5, p.Kind.Color(), true)
+		vector.StrokeLine(screen, (float32(p.Points[i-1].X)+x)*scale, (float32(p.Points[i-1].Y)+y)*scale, (float32(pt.X)+x)*scale, (float32(pt.Y)+y)*scale, 5, p.Kind.Color(), true)
 	}
 }
 

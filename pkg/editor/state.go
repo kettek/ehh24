@@ -25,6 +25,7 @@ type State struct {
 	selectedPolygonIndex int
 	pendingPolygon       res.Polygon
 	place                res.Place
+	scale                float64
 }
 
 // NewState creates a new editor state.
@@ -33,6 +34,7 @@ func NewState() *State {
 		ui:          debugui.New(),
 		tool:        &ToolNone{},
 		windowAreas: make(map[string]image.Rectangle),
+		scale:       3,
 	}
 }
 
@@ -63,6 +65,8 @@ func (s *State) Update() statemachine.State {
 		}
 	}
 	if !inBounds {
+		cx, cy := s.CursorPosition()
+		s.tool.Move(s, cx, cy)
 		// Alright, let's lcick on mappe
 		if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 			s.tool.Button(s, ebiten.MouseButtonLeft, true)
@@ -81,17 +85,23 @@ func (s *State) Update() statemachine.State {
 
 // Draw draws the editor state.
 func (s *State) Draw(screen *ebiten.Image) {
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Scale(s.scale, s.scale)
 	if s.tool.Name() == (ToolPolygon{}).Name() {
 		if len(s.pendingPolygon.Points) > 0 {
-			s.pendingPolygon.Draw(screen)
+			s.pendingPolygon.Draw(screen, op)
 		}
 	}
 
-	for _, p := range s.place.Polygons {
-		p.Draw(screen)
+	for _, s := range s.place.Statics {
+		s.Draw(screen, op)
 	}
 
-	s.tool.Draw(screen)
+	for _, p := range s.place.Polygons {
+		p.Draw(screen, op)
+	}
+
+	s.tool.Draw(screen, op)
 
 	s.ui.Draw(screen)
 }
@@ -147,7 +157,7 @@ func (s *State) windowStaxies(ctx *debugui.Context) {
 		s.windowAreas["ToolItems"] = layout.Rect
 		for _, stax := range s.sortedStaxii(res.Staxii) {
 			if ctx.Button(stax.Name) != 0 {
-				s.currentStax = stax.Name
+				s.tool.(*ToolStax).pending.Name = stax.Name
 			}
 		}
 	})
@@ -207,6 +217,12 @@ func (s *State) windowPolygons(ctx *debugui.Context) {
 			}
 		}
 	})
+}
+
+// CursorPosition returns the cursor position.
+func (s *State) CursorPosition() (int, int) {
+	x, y := ebiten.CursorPosition()
+	return int(float64(x) / s.scale), int(float64(y) / s.scale)
 }
 
 type sortedStax struct {

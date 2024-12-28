@@ -23,5 +23,15 @@
         }
       ]
     }
+  ],
+  "Statics": [
+    {
+      "Name": "term-large",
+      "Point": {
+        "X": 100,
+        "Y": 100
+      },
+      "Tag": "termie"
+    }
   ]
 }
