@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"image"
-	_ "image/png"
+	_ "image/png" // I am justifying this as the linter so demands. Look at this justifying, it's unbelievable.
 	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -17,18 +17,22 @@ import (
 //go:embed places/*.json
 var f embed.FS
 
+// StaxImage is a convenience struct that stores Stax and ebiten.Image goodies.
 type StaxImage struct {
-	Image    image.Image
 	EbiImage *ebiten.Image
 	Stax     stax.Stax
 }
 
+// Staxii is a cache of our stax images.
 var Staxii map[string]StaxImage = make(map[string]StaxImage)
 
+// Images is a cache of our non-stax images.
 var Images map[string]*ebiten.Image = make(map[string]*ebiten.Image)
 
+// Places is a cache of our places.
 var Places map[string]Place = make(map[string]Place)
 
+// GetStax gets the StaxImage associated with the given name, if possible.
 func GetStax(name string) (StaxImage, error) {
 	st, ok := Staxii[name]
 	if !ok {
@@ -37,14 +41,15 @@ func GetStax(name string) (StaxImage, error) {
 	return st, nil
 }
 
+// ReadAssets reads all images, staxii, and places from disk.
 func ReadAssets() error {
-	entries, err := ReadDir(".", "")
+	entries, err := ReadDirs(".", "")
 	if err != nil {
 		return err
 	}
 	for _, e := range entries {
 		if strings.HasSuffix(e, ".png") {
-			data, err := f.ReadFile(e)
+			data, err := ReadFile(e)
 			if err != nil {
 				return err
 			}
@@ -63,12 +68,11 @@ func ReadAssets() error {
 			} else {
 				Staxii[e[:len(e)-len(".png")]] = StaxImage{
 					Stax:     *st,
-					Image:    png,
 					EbiImage: eimg,
 				}
 			}
 		} else if strings.HasSuffix(e, ".json") {
-			data, err := f.ReadFile(e)
+			data, err := ReadFile(e)
 			if err != nil {
 				return err
 			}
@@ -82,16 +86,24 @@ func ReadAssets() error {
 	return nil
 }
 
-func ReadDir(name string, prepend string) ([]string, error) {
-	entries, err := f.ReadDir(name)
+// RefreshAssets clears the asset caches and reloads all assets.
+func RefreshAssets() error {
+	Staxii = make(map[string]StaxImage)
+	Images = make(map[string]*ebiten.Image)
+	Places = make(map[string]Place)
+	return ReadAssets()
+}
+
+// ReadDirs recursively reads directory contents from both embedded and on-disk locations.
+func ReadDirs(name string, prepend string) ([]string, error) {
+	entries, err := ReadDir(name)
 	if err != nil {
 		return nil, err
 	}
 	var names []string
 	for _, e := range entries {
 		if e.IsDir() {
-			n2, err := ReadDir(e.Name(), e.Name()+"/")
-			fmt.Println(n2, err)
+			n2, err := ReadDirs(e.Name(), e.Name()+"/")
 			if err != nil {
 				continue
 			}

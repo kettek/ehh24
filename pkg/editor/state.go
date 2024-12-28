@@ -35,6 +35,7 @@ type State struct {
 	gridWidth            float64
 	gridHeight           float64
 	gridLock             bool
+	pendingFilename      string
 	//
 	pressX, pressY int
 }
@@ -176,28 +177,53 @@ func (s *State) Layout(ow, oh int) (int, int) {
 func (s *State) windowFile(ctx *debugui.Context) {
 	ctx.Window("File", posFile.Rect(), func(resp debugui.Response, layout debugui.Layout) {
 		s.windowAreas["File"] = layout.Rect
-		ctx.SetLayoutRow([]int{40, 40, 40}, 0)
+		ctx.SetLayoutRow([]int{50, 50, 50}, 0)
 		if ctx.Button("New") != 0 {
 			s.place = res.Place{}
 		}
 		ctx.Popup("Open", func(resp debugui.Response, layout debugui.Layout) {
 			s.windowAreas["Popup"] = layout.Rect
-			for _, place := range res.Places {
+			type placie struct {
+				Key  string
+				Name string
+			}
+			var places []placie
+			for k, place := range res.Places {
+				places = append(places, placie{Key: k, Name: place.Name})
+			}
+			slices.SortFunc(places, func(a, b placie) int {
+				return strings.Compare(a.Name, b.Name)
+			})
+
+			for _, place := range places {
 				if ctx.Button(place.Name) != 0 {
-					s.place = place
+					s.place = res.Places[place.Key]
+					s.pendingFilename = strings.TrimPrefix(place.Key, "places/")
+				}
+			}
+		})
+		ctx.Popup("Save", func(resp debugui.Response, layout debugui.Layout) {
+			s.windowAreas["Popup"] = layout.Rect
+			ctx.SetLayoutRow([]int{30, 160}, 0)
+			ctx.Label("File")
+			if ctx.TextBox(&s.pendingFilename)&debugui.ResponseSubmit != 0 {
+				ctx.SetFocus()
+			}
+			ctx.SetLayoutRow([]int{-1}, 0)
+			if ctx.Button("Save") != 0 {
+				if d, err := json.Marshal(s.place); err != nil {
+					fmt.Println(err)
+				} else {
+					res.WriteFile("places/"+s.pendingFilename+".json", d)
+					res.RefreshAssets()
 				}
 			}
 		})
 		if ctx.Button("Open") != 0 {
 			ctx.OpenPopup("Open")
 		}
-		if ctx.Button("Save") != 0 {
-			// just debug for now
-			if d, err := json.Marshal(s.place); err != nil {
-				fmt.Println(err)
-			} else {
-				fmt.Println(string(d))
-			}
+		if ctx.Button("Save...") != 0 {
+			ctx.OpenPopup("Save")
 		}
 	})
 }
@@ -404,7 +430,7 @@ func (s *State) sortedStaxii(si map[string]res.StaxImage) []sortedStax {
 	return ss
 }
 
-var posFile = posSize{X: 20, Y: 20, W: 150, H: 54}
+var posFile = posSize{X: 20, Y: 20, W: 180, H: 54}
 var posTools = posSize{X: 350, Y: 20, W: 360, H: 54}
 var posToolItems = posSize{X: 20, Y: 150, W: 180, H: 350}
 var posOptions = posSize{X: 1060, Y: 80, W: 200, H: 200}
