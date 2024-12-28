@@ -22,6 +22,8 @@ type State struct {
 
 	referables Referables
 
+	place *Place // da current place
+
 	gctx context.Game
 	dctx context.Draw
 }
@@ -48,17 +50,6 @@ func NewState() *State {
 	t.SetPriority(ables.PriorityMiddle)
 	t.SetTag("qi")
 
-	// Make some test stuf.
-	t1 := NewStaticer("term-small")
-	t1.originX = -0.5
-	t1.originY = -1
-	t1.SetPriority(ables.PriorityMiddle)
-
-	t2 := NewStaticer("term-large")
-	t2.originX = -0.5
-	t2.originY = -1
-	t2.SetPriority(ables.PriorityMiddle)
-
 	geom := ebiten.GeoM{}
 	geom.Scale(3, 3)
 
@@ -76,9 +67,12 @@ func NewState() *State {
 
 	g.debugUI = NewTargetOverlay(320, 240)
 
-	g.referables = Referables{t, t1, t2, sno, vis, c}
+	g.referables = Referables{t /*vis, sno,*/, c}
 
 	g.midlay = ebiten.NewImage(320, 240)
+
+	// for now, just try to load in test place.
+	g.place = NewPlace("testie")
 
 	return g
 }
@@ -98,6 +92,10 @@ func (g *State) Update() statemachine.State {
 	for _, t := range updateables {
 		changes = append(changes, t.Update(&g.gctx)...)
 	}
+	// Also do place.
+	for _, t := range g.place.referables.Updateables() {
+		changes = append(changes, t.Update(&g.gctx)...)
+	}
 	endProfile("update")
 
 	startProfile("changes")
@@ -109,6 +107,9 @@ func (g *State) Update() statemachine.State {
 	startProfile("sort drawables")
 	// Probably shouldn't do this, but...
 	for _, t := range g.referables.Drawables() {
+		t.SetOffset(int(t.Y()))
+	}
+	for _, t := range g.place.referables.Drawables() {
 		t.SetOffset(int(t.Y()))
 	}
 	endProfile("sort drawables")
@@ -129,8 +130,10 @@ func (g *State) Draw(screen *ebiten.Image) {
 
 	g.debugUI.Draw(&g.dctx)
 
+	// A bit terrible to merge like this, but oh wel..
 	startProfile("draw drawables")
-	for _, t := range g.referables.SortedDrawables() {
+	referables := append(g.place.referables, g.referables...)
+	for _, t := range referables.SortedDrawables() {
 		t.Draw(&g.dctx)
 	}
 	endProfile("draw drawables")
@@ -141,14 +144,14 @@ func (g *State) Draw(screen *ebiten.Image) {
 	op.Blend = ebiten.BlendDestinationAtop
 
 	startProfile("draw overlays")
-	for _, t := range g.referables.Overlays() {
+	for _, t := range referables.Overlays() {
 		t.DrawTo(screen)
 	}
 	endProfile("draw overlays")
 
 	// Print our debuggies
 	if debug {
-		for _, t := range g.referables.Debugables() {
+		for _, t := range referables.Debugables() {
 			ebitenutil.DebugPrintAt(g.debugUI.img, t.String(), int(t.X()*g.gctx.Zoom), int(t.Y()*g.gctx.Zoom))
 		}
 		for i, p := range profiles {
@@ -167,6 +170,9 @@ func (g *State) Layout(ow, oh int) (int, int) {
 		g.gctx.Height = float64(oh)
 		g.midlay = ebiten.NewImage(ow, oh)
 		for _, t := range g.referables.Overlays() {
+			t.Resize(ow, oh)
+		}
+		for _, t := range g.place.referables.Overlays() {
 			t.Resize(ow, oh)
 		}
 		g.debugUI.Resize(ow, oh)

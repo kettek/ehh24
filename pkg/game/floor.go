@@ -11,8 +11,8 @@ import (
 	"github.com/kettek/ehh24/pkg/game/context"
 )
 
-// Staticer is a poorly named world object that is intended to be entirely static.
-type Staticer struct {
+// Floor doesn't don't do anything besides existie.
+type Floor struct {
 	Staxer
 	ables.Positionable
 	ables.IDable
@@ -22,9 +22,9 @@ type Staticer struct {
 	originY float64
 }
 
-// NewStaticer makes a staticer, wow.
-func NewStaticer(name string) *Staticer {
-	return &Staticer{
+// NewFloor makes a staticer, wow.
+func NewFloor(name string) *Floor {
+	return &Floor{
 		Staxer:       NewStaxer(name),
 		Positionable: ables.MakePositionable(32+rand.Float64()*256, 32+rand.Float64()*256),
 		IDable:       ables.NextIDable(),
@@ -34,13 +34,8 @@ func NewStaticer(name string) *Staticer {
 	}
 }
 
-// Update doesn't do jack yet. Probably will be used for animations.
-func (t *Staticer) Update(ctx *context.Game) []Change {
-	return nil
-}
-
 // Draw draws the staticer to da screen.
-func (t *Staticer) Draw(ctx *context.Draw) {
+func (t *Floor) Draw(ctx *context.Draw) {
 	scale := ctx.Op.GeoM.Element(0, 0)
 
 	const sliceDistance = 1.5
@@ -68,6 +63,6 @@ func (t *Staticer) Draw(ctx *context.Draw) {
 	}
 }
 
-func (t *Staticer) String() string {
+func (t *Floor) String() string {
 	return fmt.Sprintf("%d:%s:%d", t.ID(), t.Tag(), t.Priority())
 }
