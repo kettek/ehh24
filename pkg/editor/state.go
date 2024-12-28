@@ -19,8 +19,9 @@ type State struct {
 	ui          *debugui.DebugUI
 	windowAreas map[string]image.Rectangle
 	//
-	tool        Tool
-	currentStax string
+	tool              Tool
+	currentStax       string
+	selectedStaxIndex int
 	// TODO: Move this to a map struct
 	selectedPolygonIndex int
 	pendingPolygon       res.Polygon
@@ -155,6 +156,15 @@ func (s *State) windowTools(ctx *debugui.Context) {
 func (s *State) windowStaxies(ctx *debugui.Context) {
 	ctx.Window("Staxii", image.Rect(20, 150, 200, 500), func(resp debugui.Response, layout debugui.Layout) {
 		s.windowAreas["ToolItems"] = layout.Rect
+
+		if ctx.Header("Current Stax", true) != 0 {
+			if s.selectedStaxIndex >= 0 && s.selectedStaxIndex < len(s.place.Statics) {
+				stax := s.place.Statics[s.selectedStaxIndex]
+				ctx.Label(fmt.Sprintf("Index: %d", s.selectedStaxIndex))
+				s.place.Statics[s.selectedStaxIndex] = stax
+			}
+		}
+
 		for _, stax := range s.sortedStaxii(res.Staxii) {
 			if ctx.Button(stax.Name) != 0 {
 				s.tool.(*ToolStax).pending.Name = stax.Name
