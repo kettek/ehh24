@@ -15,6 +15,7 @@ type PlayerController struct {
 	action     Action
 	lastMouseX float64
 	lastMouseY float64
+	impatience float64
 }
 
 // Our inputs for moving with a PlayerController.
@@ -74,14 +75,23 @@ func (p *PlayerController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 		p.action = &ActionMoveTo{
 			X:     x,
 			Y:     y,
-			Speed: 0.4,
+			Speed: 0.4 * p.impatience,
 		}
+		p.impatience += 2.0
 	} else if up != 0 || left != 0 {
 		p.action = &ActionMoveTo{
 			X:     t.X() + left,
 			Y:     t.Y() + up,
-			Speed: 0.4,
+			Speed: 0.4 * p.impatience,
 		}
+		p.impatience += 2.0
+	} else {
+		p.impatience -= 0.2
+	}
+	if p.impatience < 1 {
+		p.impatience = 1
+	} else if p.impatience > 5 {
+		p.impatience = 5
 	}
 	if p.action != nil {
 		if p.action.Done() {
