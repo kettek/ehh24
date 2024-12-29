@@ -15,6 +15,7 @@ import (
 
 //go:embed *.png
 //go:embed places/*.json
+//go:embed places/*.txt
 var f embed.FS
 
 // StaxImage is a convenience struct that stores Stax and ebiten.Image goodies.
@@ -31,6 +32,9 @@ var Images map[string]*ebiten.Image = make(map[string]*ebiten.Image)
 
 // Places is a cache of our places.
 var Places map[string]Place = make(map[string]Place)
+
+// Scripts is a cache of place scripts.
+var Scripts map[string]string = make(map[string]string)
 
 // GetStax gets the StaxImage associated with the given name, if possible.
 func GetStax(name string) (StaxImage, error) {
@@ -81,6 +85,12 @@ func ReadAssets() error {
 				return err
 			}
 			Places[e[:len(e)-len(".json")]] = place
+		} else if strings.HasSuffix(e, ".txt") {
+			data, err := ReadFile(e)
+			if err != nil {
+				return err
+			}
+			Scripts[e[:len(e)-len(".txt")]] = string(data)
 		}
 	}
 	return nil
@@ -91,6 +101,7 @@ func RefreshAssets() error {
 	Staxii = make(map[string]StaxImage)
 	Images = make(map[string]*ebiten.Image)
 	Places = make(map[string]Place)
+	Scripts = make(map[string]string)
 	return ReadAssets()
 }
 

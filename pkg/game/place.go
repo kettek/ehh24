@@ -34,16 +34,18 @@ func NewPlace(name string) *Place {
 	p.Name = rp.Name
 
 	// Setup interpreter stuff
-	p.interp = interp.New(interp.Options{})
-	setupInterp(p.interp, rp.Script)
-	if fn, err := p.interp.Eval("Enter"); err == nil {
-		p.OnEnter = fn.Interface().(func(p *Place))
-	}
-	if fn, err := p.interp.Eval("Leave"); err == nil {
-		p.OnLeave = fn.Interface().(func(p *Place))
-	}
-	if fn, err := p.interp.Eval("Tick"); err == nil {
-		p.OnTick = fn.Interface().(func(p *Place))
+	if script, ok := res.Scripts["places/"+name]; ok {
+		p.interp = interp.New(interp.Options{})
+		setupInterp(p.interp, script)
+		if fn, err := p.interp.Eval("Enter"); err == nil {
+			p.OnEnter = fn.Interface().(func(p *Place))
+		}
+		if fn, err := p.interp.Eval("Leave"); err == nil {
+			p.OnLeave = fn.Interface().(func(p *Place))
+		}
+		if fn, err := p.interp.Eval("Tick"); err == nil {
+			p.OnTick = fn.Interface().(func(p *Place))
+		}
 	}
 
 	// Load in the floors.

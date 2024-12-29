@@ -1,0 +1,11 @@
+func (p *Place) Enter() {
+  println("enter)
+}
+
+func (p *Place) Leave() {
+  println("leave)
+}
+
+func (p *Place) Tick() {
+  println("tick)
+}
