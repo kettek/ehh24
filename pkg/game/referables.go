@@ -49,7 +49,7 @@ func (r Referables) ByID(id int) Referable {
 
 // Updateable refers to anything in za warudo that can be updated.
 type Updateable interface {
-	Update(ctx *context.Game) []Change
+	Update(ctx *ContextGame) []Change
 }
 
 // Updateables returns a list of all the Updateable objects in the Referables.

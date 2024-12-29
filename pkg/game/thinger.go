@@ -28,6 +28,7 @@ type Thinger struct {
 	walking    bool
 	walkTicker int
 	ticker     int
+	rotation   float64
 }
 
 // NewThinger makes our new thang.
@@ -40,7 +41,7 @@ func NewThinger(name string) *Thinger {
 }
 
 // Update updates the thing and returns changes.
-func (t *Thinger) Update(ctx *context.Game) (changes []Change) {
+func (t *Thinger) Update(ctx *ContextGame) (changes []Change) {
 	t.ticker++
 	if t.controller != nil {
 		for _, a := range t.controller.Update(ctx, t) {
@@ -73,6 +74,10 @@ func (t *Thinger) Draw(ctx *context.Draw) {
 	for _, i := range t.sortedSlices() {
 		slice := t.frame.Slices[i]
 		opts.GeoM.Reset()
+
+		opts.GeoM.Translate(-float64(t.stax.Stax.SliceWidth)/2, float64(t.stax.Stax.SliceHeight))
+		opts.GeoM.Rotate(t.rotation)
+		opts.GeoM.Translate(float64(t.stax.Stax.SliceWidth)/2, -float64(t.stax.Stax.SliceHeight))
 
 		opts.GeoM.Translate(float64(t.stax.Stax.SliceWidth)*t.originX, float64(t.stax.Stax.SliceHeight)*t.originY)
 

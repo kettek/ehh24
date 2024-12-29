@@ -20,11 +20,9 @@ type State struct {
 
 	debugUI *TargetOverlay
 
-	referables Referables
-
 	place *Place // da current place
 
-	gctx context.Game
+	gctx ContextGame
 	dctx context.Draw
 }
 
@@ -67,7 +65,30 @@ func NewState() *State {
 
 	g.debugUI = NewTargetOverlay(320, 240)
 
-	g.referables = Referables{t /*vis, sno,*/, c}
+	g.gctx.Referables = Referables{t /*vis, sno,*/, c}
+
+	// Some boids of testing.
+	for i := 0; i < 20; i++ {
+		b := NewThinger("boid")
+		b.controller = NewBoidController(1)
+		b.originX = -0.5
+		b.originY = -1
+		b.SetPriority(ables.PriorityMiddle)
+		b.SetTag("boid")
+		g.gctx.Referables = append(g.gctx.Referables, b)
+	}
+
+	// Some more boids of testing.
+	for i := 0; i < 20; i++ {
+		b := NewThinger("boid")
+		b.Stack("boid2")
+		b.controller = NewBoidController(2)
+		b.originX = -0.5
+		b.originY = -1
+		b.SetPriority(ables.PriorityMiddle)
+		b.SetTag("boid")
+		g.gctx.Referables = append(g.gctx.Referables, b)
+	}
 
 	g.midlay = ebiten.NewImage(320, 240)
 
@@ -87,7 +108,7 @@ func (g *State) Update() statemachine.State {
 	g.insys.Update()
 
 	startProfile("update")
-	updateables := g.referables.Updateables()
+	updateables := g.gctx.Referables.Updateables()
 	var changes []Change
 	for _, t := range updateables {
 		changes = append(changes, t.Update(&g.gctx)...)
@@ -98,13 +119,13 @@ func (g *State) Update() statemachine.State {
 
 	startProfile("changes")
 	for _, c := range changes {
-		c.Apply(g)
+		c.Apply(&g.gctx)
 	}
 	endProfile("changes")
 
 	startProfile("sort drawables")
 	// Probably shouldn't do this, but...
-	for _, t := range g.referables.Drawables() {
+	for _, t := range g.gctx.Referables.Drawables() {
 		t.SetOffset(int(t.Y()))
 	}
 	for _, t := range g.place.referables.Drawables() {
@@ -130,7 +151,7 @@ func (g *State) Draw(screen *ebiten.Image) {
 
 	// A bit terrible to merge like this, but oh wel..
 	startProfile("draw drawables")
-	referables := append(g.place.referables, g.referables...)
+	referables := append(g.place.referables, g.gctx.Referables...)
 	for _, t := range referables.SortedDrawables() {
 		t.Draw(&g.dctx)
 	}
@@ -167,7 +188,7 @@ func (g *State) Layout(ow, oh int) (int, int) {
 		g.gctx.Width = float64(ow)
 		g.gctx.Height = float64(oh)
 		g.midlay = ebiten.NewImage(ow, oh)
-		for _, t := range g.referables.Overlays() {
+		for _, t := range g.gctx.Referables.Overlays() {
 			t.Resize(ow, oh)
 		}
 		for _, t := range g.place.referables.Overlays() {

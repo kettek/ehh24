@@ -53,6 +53,17 @@ func NewStaxer(name string) Staxer {
 	}
 }
 
+// Stack sets the staxer's stack to the given string. Panics if no string exists.
+func (s *Staxer) Stack(name string) {
+	stack := s.stax.Stax.Stack(name)
+	if stack == nil {
+		panic("stack not found")
+	}
+	s.stack = stack
+	s.lastAnim = "ieee"
+	s.Animation(stack.Animations[0].Name)
+}
+
 // Animation sets the staxer's animation to the given string. Panics if no string exists.
 func (s *Staxer) Animation(name string) {
 	if s.lastAnim == name {

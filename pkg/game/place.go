@@ -2,7 +2,6 @@ package game
 
 import (
 	"github.com/kettek/ehh24/pkg/game/ables"
-	"github.com/kettek/ehh24/pkg/game/context"
 	"github.com/kettek/ehh24/pkg/res"
 	"github.com/solarlune/resolv"
 	"github.com/traefik/yaegi/interp"
@@ -97,7 +96,7 @@ func NewPlace(name string) *Place {
 	return p
 }
 
-func (p *Place) Update(ctx *context.Game) []Change {
+func (p *Place) Update(ctx *ContextGame) []Change {
 	changes := []Change{}
 
 	if p.OnTick != nil {

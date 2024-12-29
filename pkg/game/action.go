@@ -116,3 +116,31 @@ func (a *ActionMoveTo) Apply(t *Thinger) (c []Change) {
 func (a *ActionMoveTo) Done() bool {
 	return a.done
 }
+
+type ActionFace struct {
+	Radians float64
+}
+
+func (a *ActionFace) Apply(t *Thinger) []Change {
+	diff := a.Radians - t.rotation
+	if diff > math.Pi {
+		diff = diff - math.Pi*2
+	} else if diff < -math.Pi {
+		diff = diff + math.Pi*2
+	}
+	if diff > 0.05 {
+		t.rotation += diff / 10
+	} else if diff < -0.05 {
+		t.rotation += diff / 10
+	}
+	if t.rotation > math.Pi {
+		t.rotation -= math.Pi * 2
+	} else if t.rotation < -math.Pi {
+		t.rotation += math.Pi * 2
+	}
+	return nil
+}
+
+func (a *ActionFace) Done() bool {
+	return true
+}

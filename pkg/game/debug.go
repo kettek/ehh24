@@ -2,8 +2,9 @@ package game
 
 import "time"
 
-//const debug bool = false
-const debug bool = true
+const debug bool = false
+
+//const debug bool = true
 
 type profile struct {
 	name     string

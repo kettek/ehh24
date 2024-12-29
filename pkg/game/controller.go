@@ -1,13 +1,12 @@
 package game
 
 import (
-	"github.com/kettek/ehh24/pkg/game/context"
 	input "github.com/quasilyte/ebitengine-input"
 )
 
 // Controller is an interface for controlling a Thinger.
 type Controller interface {
-	Update(ctx *context.Game, t *Thinger) []Action
+	Update(ctx *ContextGame, t *Thinger) []Action
 }
 
 // PlayerController is a player-driven controller.
@@ -44,7 +43,7 @@ func NewPlayerController(insys *input.System) *PlayerController {
 }
 
 // Update updates the PlayerController.
-func (p *PlayerController) Update(ctx *context.Game, t *Thinger) (a []Action) {
+func (p *PlayerController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 	x, y := ctx.MousePosition()
 	w, h := ctx.Size()
 
@@ -105,7 +104,7 @@ func NewCursorController() *CursorController {
 }
 
 // Update creates ActionPosition for adjusting the cursor's position.
-func (c *CursorController) Update(ctx *context.Game, t *Thinger) (a []Action) {
+func (c *CursorController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 	x, y := ctx.MousePosition()
 
 	a = append(a, &ActionPosition{

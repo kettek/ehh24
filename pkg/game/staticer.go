@@ -35,7 +35,7 @@ func NewStaticer(name string) *Staticer {
 }
 
 // Update doesn't do jack yet. Probably will be used for animations.
-func (t *Staticer) Update(ctx *context.Game) []Change {
+func (t *Staticer) Update(ctx *ContextGame) []Change {
 	return nil
 }
 

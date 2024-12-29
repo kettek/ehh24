@@ -23,7 +23,7 @@ func NewTargetOverlay(width, height int) *TargetOverlay {
 }
 
 // Update rotates the visibility cone towards the current target angle.
-func (d *TargetOverlay) Update(ctx *context.Game) []Change {
+func (d *TargetOverlay) Update(ctx *ContextGame) []Change {
 	// nada
 	return nil
 }

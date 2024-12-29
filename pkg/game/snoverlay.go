@@ -71,7 +71,7 @@ func NewSnoverlay(w, h float64) *Snoverlay {
 }
 
 // Update updates the snow overlay.
-func (d *Snoverlay) Update(ctx *context.Game) []Change {
+func (d *Snoverlay) Update(ctx *ContextGame) []Change {
 	d.windx += d.windxdir
 	if d.windx > 1 {
 		d.windxdir = -0.001

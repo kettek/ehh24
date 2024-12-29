@@ -40,7 +40,7 @@ func NewVisibilityOverlay(width, height int) *VisibilityOverlay {
 }
 
 // Update rotates the visibility cone towards the current target angle.
-func (d *VisibilityOverlay) Update(ctx *context.Game) []Change {
+func (d *VisibilityOverlay) Update(ctx *ContextGame) []Change {
 	// Rotate Angle towards TargetAngle, preferring the shortest distance.
 	// If the difference is greater than Pi, rotate the other way.
 	diff := d.TargetAngle - d.Angle

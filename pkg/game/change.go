@@ -2,7 +2,7 @@ package game
 
 // Change is a requested change to the game state originating from an action.
 type Change interface {
-	Apply(g *State)
+	Apply(g *ContextGame)
 }
 
 // ChangeVisibilityOverlay changes the visibility overlay.
@@ -12,8 +12,8 @@ type ChangeVisibilityOverlay struct {
 }
 
 // Apply applies changes to the visibility overlay.
-func (c *ChangeVisibilityOverlay) Apply(g *State) {
-	if v, ok := g.referables.ByFirstTag("visibility").(*VisibilityOverlay); ok {
+func (c *ChangeVisibilityOverlay) Apply(ctx *ContextGame) {
+	if v, ok := ctx.Referables.ByFirstTag("visibility").(*VisibilityOverlay); ok {
 		v.SetX(c.X)
 		v.SetY(c.Y)
 		v.TargetAngle = c.Angle

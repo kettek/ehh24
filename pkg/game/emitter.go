@@ -29,7 +29,7 @@ func NewEmitter(name string) *Emitter {
 }
 
 // Update updates the particles
-func (t *Emitter) Update(ctx *context.Game) []Change {
+func (t *Emitter) Update(ctx *ContextGame) []Change {
 	return nil
 }
 
