@@ -70,7 +70,9 @@ func NewState() *State {
 	// Some boids of testing.
 	for i := 0; i < 20; i++ {
 		b := NewThinger("boid")
-		b.controller = NewBoidController(1)
+		bc := NewBoidController(1)
+		bc.targetID = t.ID()
+		b.controller = bc
 		b.originX = -0.5
 		b.originY = -1
 		b.SetPriority(ables.PriorityMiddle)

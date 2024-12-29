@@ -12,6 +12,7 @@ type BoidController struct {
 	dy          float64
 	visualRange float64
 	speedLimit  float64
+	targetID    int
 }
 
 // NewBoidController makes a new boid controller.
@@ -48,7 +49,13 @@ func (b *BoidController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 		boids = append(boids, boid)
 	}
 
-	b.flyTowardsCenter(t, boids)
+	if b.targetID == 0 {
+		b.flyTowardsCenter(t, boids)
+	} else if target := ctx.Referables.ByID(b.targetID); target != nil {
+		if target, ok := target.(*Thinger); ok {
+			b.flyTowardsPosition(t, target.X(), target.Y())
+		}
+	}
 	b.avoidOthers(t, boids)
 	b.matchVelocity(t, boids)
 	b.limitSpeed()
@@ -64,6 +71,13 @@ func (b *BoidController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 	})
 
 	return a
+}
+
+func (b *BoidController) flyTowardsPosition(self *Thinger, x, y float64) {
+	const centerFactor = 0.002
+
+	b.dx += (x - self.X()) * centerFactor
+	b.dy += (y - self.Y()) * centerFactor
 }
 
 func (b *BoidController) flyTowardsCenter(self *Thinger, boids []*Thinger) {
@@ -92,7 +106,7 @@ func (b *BoidController) flyTowardsCenter(self *Thinger, boids []*Thinger) {
 
 func (b *BoidController) avoidOthers(self *Thinger, boids []*Thinger) {
 	const avoidFactor = 0.02
-	const minDistance = 15.0
+	const minDistance = 10.0
 
 	moveX := 0.0
 	moveY := 0.0
