@@ -72,12 +72,13 @@ func (s *Stax) UnmarshalBinary(data []byte) error {
 	count := int(data[offset])<<8 | int(data[offset+1])
 	offset += 2
 
+	ctx := &decodeContext{
+		SliceWidth:  s.SliceWidth,
+		SliceHeight: s.SliceHeight,
+	}
 	for i := 0; i < count; i++ {
 		var stack Stack
-		n, err := stack.UnmarshalBinary(data[offset:], &decodeContext{
-			SliceWidth:  s.SliceWidth,
-			SliceHeight: s.SliceHeight,
-		})
+		n, err := stack.UnmarshalBinary(data[offset:], ctx)
 		if err != nil {
 			return err
 		}
