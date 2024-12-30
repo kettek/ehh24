@@ -86,12 +86,12 @@ func (p *PlayerController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 		}
 		p.impatience += 2.0
 	} else {
-		p.impatience -= 0.2
+		p.impatience -= 0.1
 	}
 	if p.impatience < 1 {
 		p.impatience = 1
-	} else if p.impatience > 5 {
-		p.impatience = 5
+	} else if p.impatience > 10 {
+		p.impatience = 10
 	}
 	if p.action != nil {
 		if p.action.Done() {
