@@ -19,3 +19,17 @@ func (c *ChangeVisibilityOverlay) Apply(ctx *ContextGame) {
 		v.TargetAngle = c.Angle
 	}
 }
+
+type ChangeTravel struct {
+	Place string
+}
+
+func (c *ChangeTravel) Apply(ctx *ContextGame) {
+	if _, ok := ctx.Places[c.Place]; ok {
+		// TODO: tranfer to place?
+		return
+	}
+	place := NewPlace(c.Place)
+	ctx.Places[c.Place] = place
+	// TODO: transfer to place
+}

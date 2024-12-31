@@ -144,3 +144,15 @@ func (a *ActionFace) Apply(t *Thinger) []Change {
 func (a *ActionFace) Done() bool {
 	return true
 }
+
+type ActionTravel struct {
+	place string
+}
+
+func (a *ActionTravel) Apply(t *Thinger) []Change {
+	return nil
+}
+
+func (a *ActionTravel) Done() bool {
+	return true
+}

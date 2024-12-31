@@ -32,6 +32,7 @@ func NewState() *State {
 	g.insys.Init(input.SystemConfig{
 		DevicesEnabled: input.AnyDevice,
 	})
+	g.gctx.Places = make(map[string]*Place)
 	// Setup input system
 	// Make our lil cursor?
 	c := NewThinger("cursor")

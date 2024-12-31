@@ -8,6 +8,7 @@ type ContextGame struct {
 	Height     float64
 	Zoom       float64
 	Referables Referables
+	Places     map[string]*Place
 }
 
 // MousePosition returns the position of the mouse in world coordinates.
