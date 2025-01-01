@@ -26,10 +26,10 @@ type ChangeTravel struct {
 
 func (c *ChangeTravel) Apply(ctx *ContextGame) {
 	if _, ok := ctx.Places[c.Place]; ok {
-		// TODO: tranfer to place?
+		ctx.Place = ctx.Places[c.Place]
 		return
 	}
 	place := NewPlace(c.Place)
 	ctx.Places[c.Place] = place
-	// TODO: transfer to place
+	ctx.Place = place
 }

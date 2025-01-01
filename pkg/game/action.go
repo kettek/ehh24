@@ -150,7 +150,7 @@ type ActionTravel struct {
 }
 
 func (a *ActionTravel) Apply(t *Thinger) []Change {
-	return nil
+	return []Change{&ChangeTravel{Place: a.place}}
 }
 
 func (a *ActionTravel) Done() bool {
