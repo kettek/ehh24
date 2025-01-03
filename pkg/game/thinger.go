@@ -16,6 +16,7 @@ type Thinger struct {
 	ables.Tagable
 	ables.Positionable
 	ables.Priorityable
+	ables.Storagable
 	Staxer
 	controller Controller
 	lookX      float64
