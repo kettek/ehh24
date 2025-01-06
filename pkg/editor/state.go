@@ -312,10 +312,42 @@ func (s *State) windowPolygons(ctx *debugui.Context) {
 					if ctx.Button("Trigger") != 0 {
 						polygon.Kind = res.PolygonKindTrigger
 					}
+					if ctx.Button("Interact") != 0 {
+						polygon.Kind = res.PolygonKindInteract
+					}
 				})
 				if ctx.Button(fmt.Sprintf("Kind: %s", polygon.Kind.String())) != 0 {
 					ctx.OpenPopup("Change Kind")
 				}
+				if polygon.Kind == res.PolygonKindInteract {
+					ctx.Popup("Change SubKind", func(resp debugui.Response, layout debugui.Layout) {
+						s.windowAreas["Popup"] = layout.Rect
+						if ctx.Button("Use") != 0 {
+							polygon.SubKind = res.PolygonInteractUse
+						}
+						if ctx.Button("Look") != 0 {
+							polygon.SubKind = res.PolygonInteractLook
+						}
+						if ctx.Button("Pickup") != 0 {
+							polygon.SubKind = res.PolygonInteractPickup
+						}
+					})
+					if ctx.Button(fmt.Sprintf("SubKind: %s", polygon.SubKind.String())) != 0 {
+						ctx.OpenPopup("Change SubKind")
+					}
+					ctx.SetLayoutRow([]int{25, -1}, 0)
+					ctx.Label("Msg")
+					if ctx.TextBox(&polygon.Text)&debugui.ResponseSubmit != 0 {
+						ctx.SetFocus()
+					}
+					ctx.SetLayoutRow([]int{-1}, 0)
+				}
+				ctx.SetLayoutRow([]int{25, -1}, 0)
+				ctx.Label("ScriptFile")
+				if ctx.TextBox(&polygon.Script)&debugui.ResponseSubmit != 0 {
+					ctx.SetFocus()
+				}
+				ctx.SetLayoutRow([]int{-1}, 0)
 				ctx.SetLayoutRow([]int{25, -1}, 0)
 				ctx.Label("Tag")
 				if ctx.TextBox(&polygon.Tag)&debugui.ResponseSubmit != 0 {

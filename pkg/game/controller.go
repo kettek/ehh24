@@ -1,7 +1,11 @@
 package game
 
 import (
+	"fmt"
+
+	"github.com/kettek/ehh24/pkg/res"
 	input "github.com/quasilyte/ebitengine-input"
+	"github.com/solarlune/resolv"
 )
 
 // Controller is an interface for controlling a Thinger.
@@ -56,6 +60,43 @@ func (p *PlayerController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 			LookY:      (y - t.Y()) / h * 4,
 			ShouldFace: true,
 		})
+	}
+
+	if cursor := ctx.Referables.ByFirstTag("cursor"); cursor != nil {
+		c := cursor.(*Thinger)
+		c.Animation("cursor")
+		// Try for new space hits...
+		// Ugh... does resolv not properly match intersections within a convex polygon?
+		var hitArea *Area
+		circle := resolv.NewCircle(x, y, 3)
+		for _, area := range ctx.Place.areas {
+			if sets := area.shape.Intersection(circle); len(sets.Intersections) > 0 {
+				switch area.original.Kind {
+				case res.PolygonKindInteract:
+					hitArea = area
+					switch area.original.SubKind {
+					case res.PolygonInteractUse:
+						c.Animation("interact")
+					case res.PolygonInteractLook:
+						c.Animation("look")
+					case res.PolygonInteractPickup:
+						c.Animation("grab")
+					}
+				}
+			}
+		}
+		if hitArea != nil && p.input.ActionIsJustPressed(InputMoveTo) {
+			if hitArea.original.SubKind == res.PolygonInteractUse {
+				// TODO: Walk to next to/in front and use?
+			} else if hitArea.original.SubKind == res.PolygonInteractLook {
+				// TODO: Add messaging system.
+				fmt.Println(hitArea.original.Text)
+			} else if hitArea.original.SubKind == res.PolygonInteractPickup {
+				// TODO: Walk to net to/in front and snarf? The area needs to be deleted as well...
+			}
+		} else {
+			// TODO: Just move towards the position.
+		}
 	}
 
 	left := 0.0

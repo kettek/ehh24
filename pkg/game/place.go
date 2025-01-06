@@ -11,7 +11,7 @@ import (
 type Place struct {
 	Name       string
 	referables Referables // Da referables in da place.
-	areas      []Area     // Da collision areas.
+	areas      []*Area    // Da collision areas.
 	space      *resolv.Space
 	entered    bool
 	// interpreter stuff
@@ -71,7 +71,9 @@ func NewPlace(name string) *Place {
 	// Load in collision areas.
 	p.space = resolv.NewSpace(1280, 1280, 8, 8)
 	for _, poly := range rp.Polygons {
-		area := Area{}
+		area := &Area{
+			original: poly,
+		}
 		// I guess we have to transform this crap for resolv...
 		var points []float64
 		cx, cy := 0.0, 0.0
@@ -87,6 +89,7 @@ func NewPlace(name string) *Place {
 			points[i+1] -= cy
 		}
 		area.shape = resolv.NewConvexPolygon(cx, cy, points)
+		area.shape.SetData(area)
 
 		p.space.Add(area.shape)
 

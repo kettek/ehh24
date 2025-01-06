@@ -11,9 +11,12 @@ import (
 
 // Polygon represents a polygon, waoow.
 type Polygon struct {
-	Points []image.Point
-	Kind   PolygonKind
-	Tag    string
+	Points  []image.Point
+	SubKind PolygonSubKind
+	Kind    PolygonKind
+	Tag     string
+	Script  string // Lookup script name, if applicable
+	Text    string // Text to display, if applicable
 }
 
 // PolygonKind represents the kind of a polygon.
@@ -24,6 +27,7 @@ const (
 	PolygonKindNone PolygonKind = iota
 	PolygonKindBlock
 	PolygonKindTrigger
+	PolygonKindInteract
 )
 
 // String returns the string representation of a PolygonKind.
@@ -35,6 +39,8 @@ func (k PolygonKind) String() string {
 		return "Block"
 	case PolygonKindTrigger:
 		return "Trigger"
+	case PolygonKindInteract:
+		return "Interact"
 	}
 	return "Unknown"
 }
@@ -48,8 +54,33 @@ func (k PolygonKind) Color() color.NRGBA {
 		return color.NRGBA{0xff, 0x00, 0x00, 0x80}
 	case PolygonKindTrigger:
 		return color.NRGBA{0x00, 0x00, 0xff, 0x80}
+	case PolygonKindInteract:
+		return color.NRGBA{0x00, 0xff, 0x00, 0x80}
 	}
 	return color.NRGBA{0xff, 0xff, 0xff, 0xff}
+}
+
+// PolygonSubKind represents the subkind of a polygon.
+type PolygonSubKind int
+
+// Polygon subkinds.
+const (
+	PolygonInteractUse PolygonSubKind = iota
+	PolygonInteractLook
+	PolygonInteractPickup
+)
+
+// String returns the string representation of a PolygonSubKind.
+func (k PolygonSubKind) String() string {
+	switch k {
+	case PolygonInteractUse:
+		return "Use"
+	case PolygonInteractLook:
+		return "Look"
+	case PolygonInteractPickup:
+		return "Pickup"
+	}
+	return ""
 }
 
 // Draw draws the polygon.
