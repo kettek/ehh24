@@ -1,8 +1,6 @@
 package game
 
 import (
-	"fmt"
-
 	"github.com/kettek/ehh24/pkg/res"
 	input "github.com/quasilyte/ebitengine-input"
 	"github.com/solarlune/resolv"
@@ -85,17 +83,39 @@ func (p *PlayerController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 				}
 			}
 		}
-		if hitArea != nil && p.input.ActionIsJustPressed(InputMoveTo) {
-			if hitArea.original.SubKind == res.PolygonInteractUse {
-				// TODO: Walk to next to/in front and use?
-			} else if hitArea.original.SubKind == res.PolygonInteractLook {
-				// TODO: Add messaging system.
-				fmt.Println(hitArea.original.Text)
-			} else if hitArea.original.SubKind == res.PolygonInteractPickup {
-				// TODO: Walk to net to/in front and snarf? The area needs to be deleted as well...
+		if p.input.ActionIsJustPressed(InputMoveTo) {
+			if hitArea != nil {
+				c := hitArea.shape.Center()
+				v := hitArea.shape.Bounds().Max
+				if hitArea.original.SubKind == res.PolygonInteractUse {
+					p.action = &ActionMoveTo{
+						X:     c.X,
+						Y:     v.Y + 5,
+						Speed: 0.4 * p.impatience,
+					}
+					p.impatience += 2.0
+					// TODO: Need to queue up interacting with this given area...
+				} else if hitArea.original.SubKind == res.PolygonInteractLook {
+					a = append(a, &ActionMonologue{
+						Text: hitArea.original.Text,
+					})
+				} else if hitArea.original.SubKind == res.PolygonInteractPickup {
+					// TODO: Need to queue up picking up this given area...
+					p.action = &ActionMoveTo{
+						X:     c.X,
+						Y:     v.Y + 5,
+						Speed: 0.4 * p.impatience,
+					}
+					p.impatience += 2.0
+				}
+			} else {
+				p.action = &ActionMoveTo{
+					X:     x,
+					Y:     y,
+					Speed: 0.4 * p.impatience,
+				}
+				p.impatience += 2.0
 			}
-		} else {
-			// TODO: Just move towards the position.
 		}
 	}
 
@@ -112,14 +132,7 @@ func (p *PlayerController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 		up = 1
 	}
 
-	if p.input.ActionIsJustPressed(InputMoveTo) {
-		p.action = &ActionMoveTo{
-			X:     x,
-			Y:     y,
-			Speed: 0.4 * p.impatience,
-		}
-		p.impatience += 2.0
-	} else if up != 0 || left != 0 {
+	if up != 0 || left != 0 {
 		p.action = &ActionMoveTo{
 			X:     t.X() + left,
 			Y:     t.Y() + up,

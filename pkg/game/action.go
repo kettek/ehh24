@@ -156,3 +156,16 @@ func (a *ActionTravel) Apply(t *Thinger) []Change {
 func (a *ActionTravel) Done() bool {
 	return true
 }
+
+type ActionMonologue struct {
+	Text  string
+	Timer int
+}
+
+func (a *ActionMonologue) Apply(t *Thinger) []Change {
+	return nil
+}
+
+func (a *ActionMonologue) Done() bool {
+	return a.Timer <= 0
+}
