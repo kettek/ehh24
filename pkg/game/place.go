@@ -112,3 +112,22 @@ func (p *Place) Update(ctx *ContextGame) []Change {
 
 	return changes
 }
+
+func (p *Place) GetAreaByFirstTag(tag string) *Area {
+	for _, area := range p.areas {
+		if area.original.Tag == tag {
+			return area
+		}
+	}
+	return nil
+}
+
+func (p *Place) RemoveAreaByFirstTag(tag string) {
+	for i, area := range p.areas {
+		if area.original.Tag == tag {
+			p.areas = append(p.areas[:i], p.areas[i+1:]...)
+			return
+		}
+	}
+	return
+}

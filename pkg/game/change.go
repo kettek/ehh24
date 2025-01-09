@@ -33,3 +33,22 @@ func (c *ChangeTravel) Apply(ctx *ContextGame) {
 	ctx.Places[c.Place] = place
 	ctx.Place = place
 }
+
+// ChangeAcquireItem finds the given area with the tag, deletes the area, and adds the item as an inventory to the player using Tag for its identifier and the area's Message for its name.
+type ChangeAcquireItem struct {
+	Tag string
+}
+
+// Apply applies the change to the game.
+func (c *ChangeAcquireItem) Apply(ctx *ContextGame) {
+	// Just get our player.
+	if pl, ok := ctx.Referables.ByFirstTag("qi").(*Thinger); ok {
+		if area := ctx.Place.GetAreaByFirstTag(c.Tag); area != nil {
+			pl.AddItem(area.original.Text, area.original.Tag)
+			// Delete the area...
+			ctx.Place.RemoveAreaByFirstTag(c.Tag)
+			// Also delete any associated referable in the map.
+			ctx.Place.referables.RemoveByFirstTag(c.Tag)
+		}
+	}
+}

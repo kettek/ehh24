@@ -104,11 +104,24 @@ func (p *PlayerController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 					// Might as well cancel out move actions...
 					p.action = nil
 				} else if hitArea.original.SubKind == res.PolygonInteractPickup {
-					// TODO: Need to queue up picking up this given area...
-					p.action = &ActionMoveTo{
-						X:     c.X,
-						Y:     v.Y + 5,
-						Speed: 0.4 * p.impatience,
+					// Might as well say what it is if it has text.
+					if hitArea.original.Text != "" {
+						p.monologueAction = &ActionMonologue{
+							Text:  hitArea.original.Text,
+							Timer: 100,
+						}
+					}
+
+					// Only pick up from areas that have a tag, for orbvious reasons.
+					if hitArea.original.Tag != "" {
+						p.action = &ActionPickup{
+							Target: hitArea.original.Tag,
+							ActionMoveTo: ActionMoveTo{
+								X:     c.X,
+								Y:     v.Y + 5,
+								Speed: 0.4 * p.impatience,
+							},
+						}
 					}
 					p.impatience += 2.0
 				}

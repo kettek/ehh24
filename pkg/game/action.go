@@ -117,6 +117,34 @@ func (a *ActionMoveTo) Done() bool {
 	return a.done
 }
 
+// ActionPickup moves towards a position and attempts to pick up something with a given tag.
+type ActionPickup struct {
+	ActionMoveTo
+	Target string
+}
+
+// Apply does the thing.
+func (a *ActionPickup) Apply(t *Thinger) []Change {
+	dx := a.X - t.X()
+	dy := a.Y - t.Y()
+	dist := math.Sqrt(dx*dx + dy*dy)
+	if dist < 10 { // Eh... 10 seems good enough
+		a.done = true
+		return []Change{
+			&ChangeAcquireItem{
+				Tag: a.Target,
+			},
+		}
+	}
+	// Otherwise...
+	return a.ActionMoveTo.Apply(t)
+}
+
+// Done also does a thing.
+func (a *ActionPickup) Done() bool {
+	return a.done
+}
+
 type ActionFace struct {
 	Radians float64
 }

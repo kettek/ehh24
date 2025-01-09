@@ -47,6 +47,17 @@ func (r Referables) ByID(id int) Referable {
 	return nil
 }
 
+// RemoveByFirstTag removes the a given referable by tag (and returns it).
+func (r *Referables) RemoveByFirstTag(tag string) Referable {
+	for i, t := range *r {
+		if t.Tag() == tag {
+			(*r) = append((*r)[:i], (*r)[i+1:]...)
+			return t
+		}
+	}
+	return nil
+}
+
 // Updateable refers to anything in za warudo that can be updated.
 type Updateable interface {
 	Update(ctx *ContextGame) []Change

@@ -28,9 +28,9 @@ func NewFloor(name string) *Floor {
 		Staxer:       NewStaxer(name),
 		Positionable: ables.MakePositionable(32+rand.Float64()*256, 32+rand.Float64()*256),
 		IDable:       ables.NextIDable(),
-		Tagable:      ables.MakeTagable(name),
-		originX:      -0.5,
-		originY:      -1,
+		//Tagable:      ables.MakeTagable(name),
+		originX: -0.5,
+		originY: -1,
 	}
 }
 
