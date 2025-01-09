@@ -16,6 +16,7 @@ import (
 //go:embed *.png
 //go:embed places/*.json
 //go:embed places/*.txt
+//go:embed nokore.ttf
 var f embed.FS
 
 // StaxImage is a convenience struct that stores Stax and ebiten.Image goodies.

@@ -1,6 +1,12 @@
 package context
 
-import "github.com/hajimehoshi/ebiten/v2"
+import (
+	"image/color"
+
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
+	"github.com/kettek/ehh24/pkg/res"
+)
 
 type Draw struct {
 	Width  float64
@@ -35,4 +41,39 @@ func (d *Draw) Size() (float64, float64) {
 	scaleY := d.Op.GeoM.Element(1, 1)
 
 	return d.Width / scaleX, d.Height / scaleY
+}
+
+func (d *Draw) Text(t string, geom ebiten.GeoM, c color.Color) {
+	op := &text.DrawOptions{}
+	//op.PrimaryAlign = text.AlignCenter // Ugh rendering from center with pixel fonts turns it fuzzy...
+	op.GeoM.Concat(geom)
+
+	// Time for inefficencies...
+	w, _ := text.Measure(t, &text.GoTextFace{
+		Size:   9,
+		Source: res.Font,
+	}, 1)
+
+	scaleX := d.Op.GeoM.Element(0, 0)
+	w *= scaleX
+
+	op.GeoM.Translate(-float64(w)/2, 0)
+
+	// hmm
+	op.ColorScale.ScaleWithColor(color.Black)
+	op.Filter = ebiten.FilterLinear
+	text.Draw(d.Target, t, &text.GoTextFace{
+		Size:   10,
+		Source: res.Font,
+	}, op)
+
+	op.DisableMipmaps = true
+	op.Filter = ebiten.FilterNearest
+
+	op.ColorScale.Reset()
+	op.ColorScale.ScaleWithColor(c)
+	text.Draw(d.Target, t, &text.GoTextFace{
+		Size:   9,
+		Source: res.Font,
+	}, op)
 }
