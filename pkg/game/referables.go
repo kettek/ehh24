@@ -141,3 +141,20 @@ func (r Referables) Debugables() []Debugable {
 	}
 	return res
 }
+
+// Resizable is more obnoxiousness.
+type Resizable interface {
+	Resize(int, int)
+}
+
+// Resizables returns all resizable stuff.
+func (r Referables) Resizables() []Resizable {
+	var res []Resizable
+	for _, t := range r {
+		if d, ok := t.(Resizable); ok {
+			res = append(res, d)
+		}
+	}
+	return res
+
+}

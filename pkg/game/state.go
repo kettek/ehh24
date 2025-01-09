@@ -189,10 +189,10 @@ func (g *State) Layout(ow, oh int) (int, int) {
 		g.gctx.Width = float64(ow)
 		g.gctx.Height = float64(oh)
 		g.midlay = ebiten.NewImage(ow, oh)
-		for _, t := range g.gctx.Referables.Overlays() {
+		for _, t := range g.gctx.Referables.Resizables() {
 			t.Resize(ow, oh)
 		}
-		for _, t := range g.gctx.Place.referables.Overlays() {
+		for _, t := range g.gctx.Place.referables.Resizables() {
 			t.Resize(ow, oh)
 		}
 		g.debugUI.Resize(ow, oh)
