@@ -163,6 +163,11 @@ type ActionMonologue struct {
 }
 
 func (a *ActionMonologue) Apply(t *Thinger) []Change {
+	t.monologue = a.Text
+	a.Timer--
+	if a.Timer <= 0 {
+		t.monologue = ""
+	}
 	return nil
 }
 

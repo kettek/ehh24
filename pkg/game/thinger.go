@@ -3,6 +3,7 @@ package game
 import (
 	"fmt"
 	"image"
+	"image/color"
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -30,6 +31,7 @@ type Thinger struct {
 	walkTicker int
 	ticker     int
 	rotation   float64
+	monologue  string
 }
 
 // NewThinger makes our new thang.
@@ -115,6 +117,13 @@ func (t *Thinger) Draw(ctx *context.Draw) {
 
 		sub := t.stax.EbiImage.SubImage(image.Rect(slice.X, slice.Y, slice.X+t.stax.Stax.SliceWidth, slice.Y+t.stax.Stax.SliceHeight)).(*ebiten.Image)
 		ctx.Target.DrawImage(sub, opts)
+	}
+
+	if t.monologue != "" {
+		geom := ebiten.GeoM{}
+		geom.Translate(t.X(), t.Y()-35)
+		geom.Concat(ctx.Op.GeoM)
+		ctx.Text(t.monologue, geom, color.NRGBA{16, 98, 139, 255})
 	}
 }
 

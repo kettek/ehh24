@@ -13,11 +13,12 @@ type Controller interface {
 
 // PlayerController is a player-driven controller.
 type PlayerController struct {
-	input      *input.Handler
-	action     Action
-	lastMouseX float64
-	lastMouseY float64
-	impatience float64
+	input           *input.Handler
+	action          Action
+	monologueAction Action
+	lastMouseX      float64
+	lastMouseY      float64
+	impatience      float64
 }
 
 // Our inputs for moving with a PlayerController.
@@ -96,9 +97,12 @@ func (p *PlayerController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 					p.impatience += 2.0
 					// TODO: Need to queue up interacting with this given area...
 				} else if hitArea.original.SubKind == res.PolygonInteractLook {
-					a = append(a, &ActionMonologue{
-						Text: hitArea.original.Text,
-					})
+					p.monologueAction = &ActionMonologue{
+						Text:  hitArea.original.Text,
+						Timer: 100,
+					}
+					// Might as well cancel out move actions...
+					p.action = nil
 				} else if hitArea.original.SubKind == res.PolygonInteractPickup {
 					// TODO: Need to queue up picking up this given area...
 					p.action = &ActionMoveTo{
@@ -152,6 +156,13 @@ func (p *PlayerController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 			p.action = nil
 		} else {
 			a = append(a, p.action)
+		}
+	}
+	if p.monologueAction != nil {
+		if p.monologueAction.Done() {
+			p.monologueAction = nil
+		} else {
+			a = append(a, p.monologueAction)
 		}
 	}
 
