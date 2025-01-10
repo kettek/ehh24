@@ -3,7 +3,6 @@ package game
 import (
 	"github.com/kettek/ehh24/pkg/res"
 	input "github.com/quasilyte/ebitengine-input"
-	"github.com/solarlune/resolv"
 )
 
 // Controller is an interface for controlling a Thinger.
@@ -65,11 +64,9 @@ func (p *PlayerController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 		c := cursor.(*Thinger)
 		c.Animation("cursor")
 		// Try for new space hits...
-		// Ugh... does resolv not properly match intersections within a convex polygon?
 		var hitArea *Area
-		circle := resolv.NewCircle(x, y, 3)
 		for _, area := range ctx.Place.areas {
-			if sets := area.shape.Intersection(circle); len(sets.Intersections) > 0 {
+			if area.ContainsPoint(x, y) {
 				switch area.original.Kind {
 				case res.PolygonKindInteract:
 					hitArea = area
