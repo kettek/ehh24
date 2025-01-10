@@ -59,17 +59,23 @@ func (d *Draw) Text(t string, geom ebiten.GeoM, c color.Color) {
 
 	op.GeoM.Translate(-float64(w)/2, 0)
 
-	// hmm
+	// I'm doing poor man's outline again!!!! :))))
 	op.ColorScale.ScaleWithColor(color.Black)
 	op.Filter = ebiten.FilterLinear
-	text.Draw(d.Target, t, &text.GoTextFace{
-		Size:   10,
-		Source: res.Font,
-	}, op)
+	for x := -1; x < 2; x += 2 {
+		for y := -1; y < 2; y += 2 {
+			op.GeoM.Translate(float64(x), float64(y))
 
-	op.DisableMipmaps = true
+			text.Draw(d.Target, t, &text.GoTextFace{
+				Size:   9,
+				Source: res.Font,
+			}, op)
+
+			op.GeoM.Translate(-float64(x), -float64(y))
+		}
+	}
+
 	op.Filter = ebiten.FilterNearest
-
 	op.ColorScale.Reset()
 	op.ColorScale.ScaleWithColor(c)
 	text.Draw(d.Target, t, &text.GoTextFace{
