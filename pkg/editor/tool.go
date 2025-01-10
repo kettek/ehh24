@@ -86,8 +86,10 @@ func (t *ToolPolygon) Draw(screen *ebiten.Image, op *ebiten.DrawImageOptions) {
 
 // ToolStatic is a tool for placing staxii.
 type ToolStatic struct {
-	pending res.Static
-	px, py  int
+	draggingIndex int
+	dragging      res.Static
+	pending       res.Static
+	px, py        int
 }
 
 // Name returns the name of the tool.
@@ -102,19 +104,28 @@ func (t *ToolStatic) Button(s *State, b ebiten.MouseButton, pressed bool) {
 			Name:  t.pending.Name,
 			Point: image.Pt(t.pending.Point.X, t.pending.Point.Y),
 		})
-	} else if b == ebiten.MouseButtonLeft && pressed {
-		s.selectedStaticIndex = -1
-		for i, stax := range s.place.Statics {
-			if stack, ok := res.Staxii[stax.Name]; ok {
-				x1 := stax.Point.X - stack.Stax.SliceWidth/2
-				y1 := stax.Point.Y - stack.Stax.SliceHeight
-				x2 := stax.Point.X + stack.Stax.SliceWidth/2
-				y2 := stax.Point.Y
-				if t.pending.Point.X >= x1 && t.pending.Point.X <= x2 && t.pending.Point.Y >= y1 && t.pending.Point.Y <= y2 {
-					s.selectedStaticIndex = i
-					break
+	} else if b == ebiten.MouseButtonLeft {
+		if pressed {
+			t.draggingIndex = -1
+			s.selectedStaticIndex = -1
+			for i, stax := range s.place.Statics {
+				if stack, ok := res.Staxii[stax.Name]; ok {
+					x1 := stax.Point.X - stack.Stax.SliceWidth/2
+					y1 := stax.Point.Y - stack.Stax.SliceHeight
+					x2 := stax.Point.X + stack.Stax.SliceWidth/2
+					y2 := stax.Point.Y
+					if t.pending.Point.X >= x1 && t.pending.Point.X <= x2 && t.pending.Point.Y >= y1 && t.pending.Point.Y <= y2 {
+						t.dragging = *s.place.Statics[i]
+						t.draggingIndex = i
+						s.selectedStaticIndex = i
+						break
+					}
 				}
 			}
+		} else if t.draggingIndex != -1 {
+			s.place.Statics[t.draggingIndex].Point.X = t.dragging.Point.X
+			s.place.Statics[t.draggingIndex].Point.Y = t.dragging.Point.Y
+			t.draggingIndex = -1
 		}
 	}
 }
@@ -127,12 +138,19 @@ func (t *ToolStatic) Move(s *State, x, y int) {
 	}
 	t.pending.Point.X = x
 	t.pending.Point.Y = y
+	if t.draggingIndex != -1 {
+		t.dragging.Point.X = x
+		t.dragging.Point.Y = y
+	}
 }
 
 // Draw draws the tool.
 func (t *ToolStatic) Draw(screen *ebiten.Image, op *ebiten.DrawImageOptions) {
 	op.ColorScale.ScaleAlpha(0.5)
 	t.pending.Draw(screen, op)
+	if t.draggingIndex != -1 {
+		t.dragging.Draw(screen, op)
+	}
 }
 
 // ToolFloor is a tool for placing floors.
