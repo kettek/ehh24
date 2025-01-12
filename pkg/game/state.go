@@ -168,7 +168,7 @@ func (g *State) Draw(screen *ebiten.Image) {
 	g.dctx.Op = op
 
 	g.midlay.Clear()
-	g.midlay.Fill(color.NRGBA{20, 20, 20, 255})
+	g.midlay.Fill(color.NRGBA{10, 10, 10, 255})
 
 	g.debugUI.Draw(&g.dctx)
 
