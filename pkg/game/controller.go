@@ -117,6 +117,10 @@ func (p *PlayerController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 							Speed: 0.4 * p.impatience,
 						},
 					}
+					p.monologueAction = &ActionMonologue{
+						Text:  hitArea.original.Text,
+						Timer: 100,
+					}
 					p.impatience += 2.0
 				} else if hitArea.original.SubKind == res.PolygonInteractLook {
 					p.monologueAction = &ActionMonologue{
