@@ -67,29 +67,48 @@ func NewState() *State {
 	g.gctx.Referables = Referables{t /*vis, sno,*/, c}
 
 	// Some boids of testing.
+	roboid := NewThinger("boid")
+	roboid.SetX(200)
+	roboid.SetY(200)
+	rc := NewBoidController(1)
+	rc.settles = true
+	rc.targetID = t.ID()
+	roboid.controller = rc
+	roboid.centerX = 0.5
+	roboid.centerY = 0.5
+	roboid.SetPriority(ables.PriorityMiddle)
+	roboid.SetTag("boid")
+	roboid.Stack("roboid")
+	g.gctx.Referables = append(g.gctx.Referables, roboid)
 	for i := 0; i < 20; i++ {
 		b := NewThinger("boid")
+		b.SetX(400)
+		b.SetY(200)
 		bc := NewBoidController(1)
-		bc.targetID = t.ID()
+		bc.settles = true
+		bc.targetID = roboid.ID()
 		b.controller = bc
-		b.originX = -0.5
-		b.originY = -1
+		b.centerX = 0.5
+		b.centerY = 0.5
 		b.SetPriority(ables.PriorityMiddle)
 		b.SetTag("boid")
+		if i%2 == 0 {
+			b.Stack("boid2")
+		}
 		g.gctx.Referables = append(g.gctx.Referables, b)
 	}
 
 	// Some more boids of testing.
-	for i := 0; i < 20; i++ {
+	/*for i := 0; i < 20; i++ {
 		b := NewThinger("boid")
 		b.Stack("boid2")
 		b.controller = NewBoidController(2)
-		b.originX = -0.5
-		b.originY = -1
+		b.centerX = 0.5
+		b.centerY = 0.5
 		b.SetPriority(ables.PriorityMiddle)
 		b.SetTag("boid")
 		g.gctx.Referables = append(g.gctx.Referables, b)
-	}
+	}*/
 
 	g.midlay = ebiten.NewImage(320, 240)
 

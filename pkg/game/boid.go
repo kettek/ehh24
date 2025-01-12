@@ -3,16 +3,22 @@ package game
 import (
 	"math"
 	"math/rand"
+
+	"github.com/kettek/ehh24/pkg/game/ables"
 )
 
 // BoidController is boid logic attached to a thinger.
 type BoidController struct {
-	flockID     int
-	dx          float64
-	dy          float64
-	visualRange float64
-	speedLimit  float64
-	targetID    int
+	flockID      int
+	dx           float64
+	dy           float64
+	visualRange  float64
+	speedLimit   float64
+	targetID     int
+	settled      bool
+	shouldSettle bool
+	settles      bool
+	meander      bool
 }
 
 // NewBoidController makes a new boid controller.
@@ -49,10 +55,13 @@ func (b *BoidController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 		boids = append(boids, boid)
 	}
 
+	var target *Thinger
 	if b.targetID == 0 {
 		b.flyTowardsCenter(t, boids)
-	} else if target := ctx.Referables.ByID(b.targetID); target != nil {
-		if target, ok := target.(*Thinger); ok {
+	} else if tt := ctx.Referables.ByID(b.targetID); tt != nil {
+		var ok bool
+		target, ok = tt.(*Thinger)
+		if ok {
 			b.flyTowardsPosition(t, target.X(), target.Y())
 		}
 	}
@@ -60,6 +69,8 @@ func (b *BoidController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 	b.matchVelocity(t, boids)
 	b.limitSpeed()
 	b.keepInBounds(ctx, t)
+	b.doSettle(t, boids)
+	b.doMeander(t, target)
 
 	a = append(a, &ActionPosition{
 		X: t.X() + b.dx,
@@ -78,6 +89,15 @@ func (b *BoidController) flyTowardsPosition(self *Thinger, x, y float64) {
 
 	b.dx += (x - self.X()) * centerFactor
 	b.dy += (y - self.Y()) * centerFactor
+
+	if b.settles {
+		dist := b.distance(self, &Thinger{
+			Positionable: ables.MakePositionable(x, y),
+		})
+		if dist < 60 {
+			b.shouldSettle = true
+		}
+	}
 }
 
 func (b *BoidController) flyTowardsCenter(self *Thinger, boids []*Thinger) {
@@ -106,7 +126,7 @@ func (b *BoidController) flyTowardsCenter(self *Thinger, boids []*Thinger) {
 
 func (b *BoidController) avoidOthers(self *Thinger, boids []*Thinger) {
 	const avoidFactor = 0.02
-	const minDistance = 10.0
+	const minDistance = 8.0
 
 	moveX := 0.0
 	moveY := 0.0
@@ -172,6 +192,59 @@ func (b *BoidController) keepInBounds(ctx *ContextGame, self *Thinger) {
 	if self.Y() > h-margin {
 		b.dy -= turnFactor
 	}
+}
+
+func (b *BoidController) doSettle(self *Thinger, boids []*Thinger) {
+	if !b.shouldSettle || b.settled {
+		return
+	}
+
+	b.dx *= 0.9
+	b.dy *= 0.9
+	if math.Abs(b.dx) < 0.5 && math.Abs(b.dy) < 0.5 {
+		b.setSettle(self, true)
+	} else {
+		// Check against our other boids settle count.
+		settleCount := 0
+		for _, boid := range boids {
+			bc := boid.controller.(*BoidController)
+			if bc.settled {
+				settleCount++
+			}
+		}
+		if settleCount >= len(boids)-len(boids)/4 {
+			b.setSettle(self, true)
+		}
+	}
+}
+
+func (b *BoidController) setSettle(self *Thinger, settle bool) {
+	if settle {
+		b.settled = true
+		b.meander = true
+		self.Animation("settled")
+		b.speedLimit = 0.5
+	} else {
+		b.settled = false
+		b.meander = false
+		self.Animation("fly")
+		b.speedLimit = 3
+	}
+}
+
+func (b *BoidController) doMeander(self *Thinger, target *Thinger) {
+	if !b.meander {
+		return
+	}
+
+	if target != nil {
+		if b.distance(self, target) > 60 {
+			b.setSettle(self, false)
+		}
+	}
+
+	b.dx += rand.Float64()*0.2 - 0.1
+	b.dy += rand.Float64()*0.2 - 0.1
 }
 
 func (b *BoidController) distance(self, other *Thinger) float64 {
