@@ -65,11 +65,14 @@ func (k PolygonKind) Color() color.NRGBA {
 // PolygonSubKind represents the subkind of a polygon.
 type PolygonSubKind int
 
-// Polygon subkinds.
+// Polygon interact subkinds.
 const (
 	PolygonInteractUse PolygonSubKind = iota
 	PolygonInteractLook
 	PolygonInteractPickup
+	//
+	PolygonTriggerTravel
+	PolygonTriggerScript
 )
 
 // String returns the string representation of a PolygonSubKind.
@@ -81,6 +84,10 @@ func (k PolygonSubKind) String() string {
 		return "Look"
 	case PolygonInteractPickup:
 		return "Pickup"
+	case PolygonTriggerTravel:
+		return "Travel"
+	case PolygonTriggerScript:
+		return "Script"
 	}
 	return ""
 }

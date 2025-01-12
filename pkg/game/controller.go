@@ -47,6 +47,26 @@ func NewPlayerController(insys *input.System) *PlayerController {
 
 // Update updates the PlayerController.
 func (p *PlayerController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
+	// First see if thinger has hit a trigger area.
+	for _, area := range ctx.Place.areas {
+		if area.ContainsPoint(t.X(), t.Y()) {
+			if area.original.Kind == res.PolygonKindTrigger {
+				switch area.original.SubKind {
+				case res.PolygonTriggerTravel:
+					if area.original.TargetTag != "" {
+						a = append(a, &ActionTravel{
+							Place: area.original.TargetTag,
+						})
+						p.action = nil
+						p.monologueAction = nil
+						return
+					}
+				}
+			}
+		}
+	}
+
+	// Otherwise handle click actions.
 	x, y := ctx.MousePosition()
 	w, h := ctx.Size()
 

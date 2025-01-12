@@ -358,6 +358,25 @@ func (s *State) windowPolygons(ctx *debugui.Context) {
 						}
 						ctx.SetLayoutRow([]int{-1}, 0)
 					}
+				} else if polygon.Kind == res.PolygonKindTrigger {
+					ctx.Popup("Change SubKind", func(resp debugui.Response, layout debugui.Layout) {
+						s.windowAreas["Popup"] = layout.Rect
+						if ctx.Button("Travel") != 0 {
+							polygon.SubKind = res.PolygonTriggerTravel
+						}
+						if ctx.Button("Script") != 0 {
+							polygon.SubKind = res.PolygonTriggerScript
+						}
+					})
+					if ctx.Button(fmt.Sprintf("SubKind: %s", polygon.SubKind.String())) != 0 {
+						ctx.OpenPopup("Change SubKind")
+					}
+					ctx.SetLayoutRow([]int{25, -1}, 0)
+					ctx.Label("Travel")
+					if ctx.TextBox(&polygon.TargetTag)&debugui.ResponseSubmit != 0 {
+						ctx.SetFocus()
+					}
+					ctx.SetLayoutRow([]int{-1}, 0)
 				}
 				ctx.SetLayoutRow([]int{25, -1}, 0)
 				ctx.Label("ScriptFile")

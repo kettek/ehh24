@@ -32,13 +32,39 @@ type ChangeTravel struct {
 }
 
 func (c *ChangeTravel) Apply(ctx *ContextGame) {
-	if _, ok := ctx.Places[c.Place]; ok {
-		ctx.Place = ctx.Places[c.Place]
+	parts := strings.SplitN(c.Place, ":", 2)
+	var placeName string
+	var enter string
+
+	if len(parts) > 0 {
+		placeName = parts[0]
+	}
+	if len(parts) > 1 {
+		enter = parts[1]
+	}
+
+	if placeName == "" {
 		return
 	}
-	place := NewPlace(c.Place)
-	ctx.Places[c.Place] = place
-	ctx.Place = place
+
+	if _, ok := ctx.Places[placeName]; ok {
+		ctx.Place = ctx.Places[placeName]
+	} else {
+		place := NewPlace(placeName)
+		ctx.Places[placeName] = place
+		ctx.Place = place
+	}
+	ctx.Place.referables = append(ctx.Place.referables, NewFadeInOverlay(int(ctx.Width), int(ctx.Height), 50))
+	// Move player into position.
+	if enter != "" {
+		if area := ctx.Place.GetAreaByFirstTag(enter); area != nil {
+			if pl, ok := ctx.Referables.ByFirstTag("qi").(*Thinger); ok {
+				x, y := area.Center()
+				pl.SetX(x)
+				pl.SetY(y)
+			}
+		}
+	}
 }
 
 // ChangeAcquireItem finds the given area with the tag, deletes the area, and adds the item as an inventory to the player using Tag for its identifier and the area's Message for its name.

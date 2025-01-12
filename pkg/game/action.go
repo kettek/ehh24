@@ -211,11 +211,11 @@ func (a *ActionFace) Done() bool {
 }
 
 type ActionTravel struct {
-	place string
+	Place string
 }
 
 func (a *ActionTravel) Apply(t *Thinger) []Change {
-	return []Change{&ChangeTravel{Place: a.place}}
+	return []Change{&ChangeTravel{Place: a.Place}}
 }
 
 func (a *ActionTravel) Done() bool {

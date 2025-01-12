@@ -70,7 +70,7 @@ func NewState() *State {
 	g.gctx.Referables = Referables{t /*vis, sno,*/, fadein, c}
 
 	// Some boids of testing.
-	roboid := NewThinger("boid")
+	/*roboid := NewThinger("boid")
 	roboid.SetX(200)
 	roboid.SetY(200)
 	rc := NewBoidController(1)
@@ -99,7 +99,7 @@ func NewState() *State {
 			b.Stack("boid2")
 		}
 		g.gctx.Referables = append(g.gctx.Referables, b)
-	}
+	}*/
 
 	// Some more boids of testing.
 	/*for i := 0; i < 20; i++ {
@@ -117,6 +117,7 @@ func NewState() *State {
 
 	// for now, just try to load in test place.
 	g.gctx.Place = NewPlace("testie")
+	g.gctx.Places["testie"] = g.gctx.Place
 
 	return g
 }
