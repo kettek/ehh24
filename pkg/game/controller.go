@@ -70,14 +70,17 @@ func (p *PlayerController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 	x, y := ctx.MousePosition()
 	w, h := ctx.Size()
 
+	// Look in a direction if we're not doing a move action.
 	if x != p.lastMouseX || y != p.lastMouseY {
-		p.lastMouseX = x
-		p.lastMouseY = y
-		a = append(a, &ActionLook{
-			LookX:      (x - t.X()) / w * 4,
-			LookY:      (y - t.Y()) / h * 4,
-			ShouldFace: true,
-		})
+		if _, ok := p.action.(*ActionMoveTo); ok || p.action == nil {
+			p.lastMouseX = x
+			p.lastMouseY = y
+			a = append(a, &ActionLook{
+				LookX:      (x - t.X()) / w * 4,
+				LookY:      (y - t.Y()) / h * 4,
+				ShouldFace: true,
+			})
+		}
 	}
 
 	if cursor := ctx.Referables.ByFirstTag("cursor"); cursor != nil {
