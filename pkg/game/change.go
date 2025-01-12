@@ -1,5 +1,7 @@
 package game
 
+import "github.com/kettek/ehh24/pkg/res"
+
 // Change is a requested change to the game state originating from an action.
 type Change interface {
 	Apply(g *ContextGame)
@@ -51,4 +53,25 @@ func (c *ChangeAcquireItem) Apply(ctx *ContextGame) {
 			ctx.Place.referables.RemoveByFirstTag(c.Tag)
 		}
 	}
+}
+
+type ChangeThingerPosition struct {
+	Force   bool
+	Thinger *Thinger
+	X, Y    float64
+}
+
+func (c *ChangeThingerPosition) Apply(ctx *ContextGame) {
+	if c.Force {
+		c.Thinger.SetX(c.X)
+		c.Thinger.SetY(c.Y)
+		return
+	}
+	for _, area := range ctx.Place.areas {
+		if area.ContainsPoint(c.X, c.Y) && area.original.Kind == res.PolygonKindBlock {
+			return
+		}
+	}
+	c.Thinger.SetX(c.X)
+	c.Thinger.SetY(c.Y)
 }

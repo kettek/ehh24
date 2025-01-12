@@ -83,12 +83,12 @@ func (p *PlayerController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 		}
 		if p.input.ActionIsJustPressed(InputMoveTo) {
 			if hitArea != nil {
-				c := hitArea.shape.Center()
-				v := hitArea.shape.Bounds().Max
+				cx, _ := hitArea.Center()
+				_, _, _, my := hitArea.Bounds()
 				if hitArea.original.SubKind == res.PolygonInteractUse {
 					p.action = &ActionMoveTo{
-						X:     c.X,
-						Y:     v.Y + 5,
+						X:     cx,
+						Y:     my + 5,
 						Speed: 0.4 * p.impatience,
 					}
 					p.impatience += 2.0
@@ -114,8 +114,8 @@ func (p *PlayerController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 						p.action = &ActionPickup{
 							Target: hitArea.original.Tag,
 							ActionMoveTo: ActionMoveTo{
-								X:     c.X,
-								Y:     v.Y + 5,
+								X:     cx,
+								Y:     my + 5,
 								Speed: 0.4 * p.impatience,
 							},
 						}

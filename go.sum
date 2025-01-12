@@ -8,6 +8,8 @@ github.com/ebitengine/purego v0.8.0 h1:JbqvnEzRvPpxhCJzJJ2y0RbiZ8nyjccVUrSM3q+Gv
 github.com/ebitengine/purego v0.8.0/go.mod h1:iIjxzd6CiRiOG0UyXP+V1+jWqUXVjPKLAI0mRfJZTmQ=
 github.com/go-text/typesetting v0.2.0 h1:fbzsgbmk04KiWtE+c3ZD4W2nmCRzBqrqQOvYlwAOdho=
 github.com/go-text/typesetting v0.2.0/go.mod h1:2+owI/sxa73XA581LAzVuEBZ3WEEV2pXeDswCH/3i1I=
+github.com/go-text/typesetting-utils v0.0.0-20240317173224-1986cbe96c66 h1:GUrm65PQPlhFSKjLPGOZNPNxLCybjzjYBzjfoBGaDUY=
+github.com/go-text/typesetting-utils v0.0.0-20240317173224-1986cbe96c66/go.mod h1:DDxDdQEnB70R8owOx3LVpEFvpMK9eeH1o2r0yZhFI9o=
 github.com/google/go-cmp v0.6.0/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
 github.com/hajimehoshi/bitmapfont/v3 v3.2.0 h1:0DISQM/rseKIJhdF29AkhvdzIULqNIIlXAGWit4ez1Q=
 github.com/hajimehoshi/bitmapfont/v3 v3.2.0/go.mod h1:8gLqGatKVu0pwcNCJguW3Igg9WQqVXF0zg/RvrGQWyg=
@@ -26,8 +28,6 @@ github.com/quasilyte/gmath v0.0.0-20221217210116-fba37a2e15c7 h1:mvIS9aGirkzuYmH
 github.com/quasilyte/gmath v0.0.0-20221217210116-fba37a2e15c7/go.mod h1:EbI+KMbALSVE2s0YFOQpR4uj66zBh9ter5P4CBMSuvA=
 github.com/radovskyb/watcher v1.0.7 h1:AYePLih6dpmS32vlHfhCeli8127LzkIgwJGcwwe8tUE=
 github.com/radovskyb/watcher v1.0.7/go.mod h1:78okwvY5wPdzcb1UYnip1pvrZNIVEIh/Cm+ZuvsUYIg=
-github.com/solarlune/resolv v0.8.1 h1:QkjnTJYB59EJmw+0+f52UbfE149ERU4FTCRICJTYz9k=
-github.com/solarlune/resolv v0.8.1/go.mod h1:iqRbXy78XQ7aDXGZY3abI41Wr80Yv1DqnxzzPvGG6yE=
 github.com/traefik/yaegi v0.16.1 h1:f1De3DVJqIDKmnasUF6MwmWv1dSEEat0wcpXhD2On3E=
 github.com/traefik/yaegi v0.16.1/go.mod h1:4eVhbPb3LnD2VigQjhYbEJ69vDRFdT2HQNrXx8eEwUY=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=

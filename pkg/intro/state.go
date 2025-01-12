@@ -55,13 +55,6 @@ func (s *State) Draw(screen *ebiten.Image) {
 		op.GeoM.Translate(float64(s.width)/2-float64(ebi.Bounds().Dy()/2), float64(s.height)/2-float64(ebi.Bounds().Dy())/2)
 		screen.DrawImage(ebi, op)
 	}
-	{
-		resolv := res.Images["resolv"]
-		op.GeoM.Reset()
-		op.GeoM.Translate(-300, 0)
-		op.GeoM.Translate(float64(s.width)/2-float64(resolv.Bounds().Dy()/2), float64(s.height)/2-float64(resolv.Bounds().Dy())/2)
-		screen.DrawImage(resolv, op)
-	}
 }
 
 // Layout does a layout.

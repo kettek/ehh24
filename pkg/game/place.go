@@ -3,7 +3,6 @@ package game
 import (
 	"github.com/kettek/ehh24/pkg/game/ables"
 	"github.com/kettek/ehh24/pkg/res"
-	"github.com/solarlune/resolv"
 	"github.com/traefik/yaegi/interp"
 )
 
@@ -12,7 +11,6 @@ type Place struct {
 	Name       string
 	referables Referables // Da referables in da place.
 	areas      []*Area    // Da collision areas.
-	space      *resolv.Space
 	entered    bool
 	// interpreter stuff
 	interp  *interp.Interpreter
@@ -69,29 +67,10 @@ func NewPlace(name string) *Place {
 	// TODO!
 
 	// Load in collision areas.
-	p.space = resolv.NewSpace(1280, 1280, 8, 8)
 	for _, poly := range rp.Polygons {
 		area := &Area{
 			original: poly,
 		}
-		// I guess we have to transform this crap for resolv...
-		var points []float64
-		cx, cy := 0.0, 0.0
-		for _, point := range poly.Points {
-			points = append(points, float64(point.X), float64(point.Y))
-			cx += float64(point.X)
-			cy += float64(point.Y)
-		}
-		cx /= float64(len(poly.Points))
-		cy /= float64(len(poly.Points))
-		for i := 0; i < len(points); i += 2 {
-			points[i] -= cx
-			points[i+1] -= cy
-		}
-		area.shape = resolv.NewConvexPolygon(cx, cy, points)
-		area.shape.SetData(area)
-
-		p.space.Add(area.shape)
 
 		p.areas = append(p.areas, area)
 	}

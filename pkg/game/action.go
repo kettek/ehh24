@@ -61,10 +61,15 @@ func (a *ActionPosition) Done() bool {
 }
 
 // Apply changes the position of a thinger.
-func (a *ActionPosition) Apply(t *Thinger) []Change {
-	t.SetX(a.X)
-	t.SetY(a.Y)
-	return nil
+func (a *ActionPosition) Apply(t *Thinger) (c []Change) {
+	c = append(c, &ChangeThingerPosition{
+		Force:   true,
+		Thinger: t,
+		X:       a.X,
+		Y:       a.Y,
+	})
+
+	return c
 }
 
 // ActionMoveTo moves a thinger to a position. This occurs over time.
@@ -100,8 +105,12 @@ func (a *ActionMoveTo) Apply(t *Thinger) (c []Change) {
 	} else {
 		t.faceUp = false
 	}
-	t.SetX(t.X() + dx/dist*a.Speed)
-	t.SetY(t.Y() + dy/dist*a.Speed*0.6)
+
+	c = append(c, &ChangeThingerPosition{
+		Thinger: t,
+		X:       t.X() + dx/dist*a.Speed,
+		Y:       t.Y() + dy/dist*a.Speed*0.6,
+	})
 
 	c = append(c, &ChangeVisibilityOverlay{
 		X:     t.X(),
