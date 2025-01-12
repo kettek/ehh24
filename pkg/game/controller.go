@@ -191,6 +191,10 @@ func (p *PlayerController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 			p.action = nil
 		} else {
 			a = append(a, p.action)
+			// Might as well look at the target if we can.
+			if la := p.lookAtIfPossible(t, w, h); la != nil {
+				a = append(a, la)
+			}
 		}
 	}
 	if p.monologueAction != nil {
@@ -202,6 +206,26 @@ func (p *PlayerController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 	}
 
 	return a
+}
+
+// Yeah, this is dumb.
+func (p *PlayerController) lookAtIfPossible(t *Thinger, w, h float64) Action {
+	if p.action != nil {
+		if a, ok := p.action.(*ActionPickup); ok {
+			return &ActionLook{
+				LookX:      (a.X - t.X()) * 0.8, // ehh...
+				LookY:      (a.Y - t.Y()) * 0.8,
+				ShouldFace: true,
+			}
+		} else if a, ok := p.action.(*ActionUse); ok {
+			return &ActionLook{
+				LookX:      (a.X - t.X()) * 0.8,
+				LookY:      (a.Y - t.Y()) * 0.8,
+				ShouldFace: true,
+			}
+		}
+	}
+	return nil
 }
 
 // CursorController is a controller for the cursor.
