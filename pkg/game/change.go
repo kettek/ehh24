@@ -1,6 +1,11 @@
 package game
 
-import "github.com/kettek/ehh24/pkg/res"
+import (
+	"fmt"
+	"strings"
+
+	"github.com/kettek/ehh24/pkg/res"
+)
 
 // Change is a requested change to the game state originating from an action.
 type Change interface {
@@ -55,6 +60,38 @@ func (c *ChangeAcquireItem) Apply(ctx *ContextGame) {
 	}
 }
 
+type ChangeUse struct {
+	Tag string
+}
+
+func (c *ChangeUse) Apply(ctx *ContextGame) {
+	fmt.Println("... using ", c.Tag)
+	// Alright, let's see what the given area does.
+	if area := ctx.Place.GetAreaByFirstTag(c.Tag); area != nil {
+		targets := strings.Split(area.original.TargetTag, ";")
+		actions := strings.Split(area.original.TargetAction, ";")
+		for i, target := range targets {
+			var act string
+			if i < len(actions) {
+				act = actions[i]
+			} else if len(actions) > 0 {
+				act = actions[0]
+			}
+			if area2 := ctx.Place.GetAreaByFirstTag(target); area2 != nil {
+				if act == "del" {
+					ctx.Place.RemoveAreaByFirstTag(target)
+				}
+			}
+			// Check referables too, I guess.
+			if ref := ctx.Place.referables.ByFirstTag(target); ref != nil {
+				if act == "del" {
+					ctx.Place.referables.RemoveByFirstTag(target)
+				}
+			}
+		}
+	}
+}
+
 type ChangeThingerPosition struct {
 	Force   bool
 	Thinger *Thinger
@@ -74,4 +111,12 @@ func (c *ChangeThingerPosition) Apply(ctx *ContextGame) {
 	}
 	c.Thinger.SetX(c.X)
 	c.Thinger.SetY(c.Y)
+}
+
+type ChangeRemoveReferable struct {
+	ID int
+}
+
+func (c *ChangeRemoveReferable) Apply(ctx *ContextGame) {
+	ctx.Referables.RemoveByID(c.ID)
 }

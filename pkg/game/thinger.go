@@ -75,6 +75,23 @@ func (t *Thinger) sortedSlices() []int {
 
 // Draw draws the dang thing.
 func (t *Thinger) Draw(ctx *context.Draw) {
+	t.draw(ctx)
+
+	if debug {
+		cx := t.X() + float64(t.stax.Stax.SliceWidth)*t.centerX
+		cy := t.Y() + float64(t.stax.Stax.SliceHeight)*t.centerY
+		ebitenutil.DrawCircle(ctx.Target, cx*ctx.Op.GeoM.Element(0, 0), cy*ctx.Op.GeoM.Element(0, 0), 2, color.NRGBA{255, 0, 0, 255})
+	}
+
+	if t.monologue != "" {
+		geom := ebiten.GeoM{}
+		geom.Translate(t.X(), t.Y()-35)
+		geom.Concat(ctx.Op.GeoM)
+		ctx.Text(t.monologue, geom, color.NRGBA{16, 98, 139, 255})
+	}
+}
+
+func (t *Thinger) draw(ctx *context.Draw) {
 	opts := &ebiten.DrawImageOptions{}
 
 	for _, i := range t.sortedSlices() {
@@ -115,24 +132,12 @@ func (t *Thinger) Draw(ctx *context.Draw) {
 
 		opts.GeoM.Translate(t.X(), t.Y())
 
+		opts.Filter = ctx.Op.Filter
 		opts.Blend = ctx.Op.Blend
 		opts.GeoM.Concat(ctx.Op.GeoM)
 
 		sub := t.stax.EbiImage.SubImage(image.Rect(slice.X, slice.Y, slice.X+t.stax.Stax.SliceWidth, slice.Y+t.stax.Stax.SliceHeight)).(*ebiten.Image)
 		ctx.Target.DrawImage(sub, opts)
-	}
-
-	if debug {
-		cx := t.X() + float64(t.stax.Stax.SliceWidth)*t.centerX
-		cy := t.Y() + float64(t.stax.Stax.SliceHeight)*t.centerY
-		ebitenutil.DrawCircle(ctx.Target, cx*ctx.Op.GeoM.Element(0, 0), cy*ctx.Op.GeoM.Element(0, 0), 2, color.NRGBA{255, 0, 0, 255})
-	}
-
-	if t.monologue != "" {
-		geom := ebiten.GeoM{}
-		geom.Translate(t.X(), t.Y()-35)
-		geom.Concat(ctx.Op.GeoM)
-		ctx.Text(t.monologue, geom, color.NRGBA{16, 98, 139, 255})
 	}
 }
 

@@ -11,12 +11,14 @@ import (
 
 // Polygon represents a polygon, waoow.
 type Polygon struct {
-	Points  []image.Point
-	SubKind PolygonSubKind
-	Kind    PolygonKind
-	Tag     string
-	Script  string // Lookup script name, if applicable
-	Text    string // Text to display, if applicable
+	Points       []image.Point
+	SubKind      PolygonSubKind
+	Kind         PolygonKind
+	Tag          string
+	TargetTag    string
+	TargetAction string
+	Script       string // Lookup script name, if applicable
+	Text         string // Text to display, if applicable
 }
 
 // PolygonKind represents the kind of a polygon.

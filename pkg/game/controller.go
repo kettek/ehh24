@@ -86,13 +86,15 @@ func (p *PlayerController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 				cx, _ := hitArea.Center()
 				_, _, _, my := hitArea.Bounds()
 				if hitArea.original.SubKind == res.PolygonInteractUse {
-					p.action = &ActionMoveTo{
-						X:     cx,
-						Y:     my + 5,
-						Speed: 0.4 * p.impatience,
+					p.action = &ActionUse{
+						Target: hitArea.original.Tag,
+						ActionMoveTo: ActionMoveTo{
+							X:     cx,
+							Y:     my + 5,
+							Speed: 0.4 * p.impatience,
+						},
 					}
 					p.impatience += 2.0
-					// TODO: Need to queue up interacting with this given area...
 				} else if hitArea.original.SubKind == res.PolygonInteractLook {
 					p.monologueAction = &ActionMonologue{
 						Text:  hitArea.original.Text,

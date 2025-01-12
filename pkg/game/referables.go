@@ -47,6 +47,17 @@ func (r Referables) ByID(id int) Referable {
 	return nil
 }
 
+// RemoveByID removes the a given referable by ID (and returns it).
+func (r *Referables) RemoveByID(id int) Referable {
+	for i, t := range *r {
+		if t.ID() == id {
+			(*r) = append((*r)[:i], (*r)[i+1:]...)
+			return t
+		}
+	}
+	return nil
+}
+
 // RemoveByFirstTag removes the a given referable by tag (and returns it).
 func (r *Referables) RemoveByFirstTag(tag string) Referable {
 	for i, t := range *r {
@@ -99,7 +110,7 @@ func (r Referables) Drawables() []Drawable {
 // SortedDrawables returns a list of all the Drawables in the Referables, sorted by Priority.
 func (r Referables) SortedDrawables() []Drawable {
 	drawables := r.Drawables()
-	slices.SortFunc(drawables, func(a, b Drawable) int {
+	slices.SortStableFunc(drawables, func(a, b Drawable) int {
 		return a.Priority() - b.Priority()
 	})
 	return drawables

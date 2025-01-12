@@ -60,6 +60,7 @@ func NewPlace(name string) *Place {
 		st.SetX(float64(static.Point.X))
 		st.SetY(float64(static.Point.Y))
 		st.SetPriority(ables.PriorityMiddle)
+		st.SetTag(static.Tag)
 		p.referables = append(p.referables, st)
 	}
 

@@ -154,6 +154,34 @@ func (a *ActionPickup) Done() bool {
 	return a.done
 }
 
+// ActionUse moves towards a position and attempts to use something with a given tag.
+type ActionUse struct {
+	ActionMoveTo
+	Target string
+}
+
+// Apply does the thing.
+func (a *ActionUse) Apply(t *Thinger) []Change {
+	dx := a.X - t.X()
+	dy := a.Y - t.Y()
+	dist := math.Sqrt(dx*dx + dy*dy)
+	if dist < 10 { // Eh... 10 seems good enough
+		a.done = true
+		return []Change{
+			&ChangeUse{
+				Tag: a.Target,
+			},
+		}
+	}
+	// Otherwise...
+	return a.ActionMoveTo.Apply(t)
+}
+
+// Done also does a thing.
+func (a *ActionUse) Done() bool {
+	return a.done
+}
+
 type ActionFace struct {
 	Radians float64
 }

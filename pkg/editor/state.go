@@ -282,6 +282,9 @@ func (s *State) windowFloors(ctx *debugui.Context) {
 				stax := s.place.Floor[s.selectedFloorIndex]
 				ctx.Label(fmt.Sprintf("Index: %d", s.selectedFloorIndex))
 				s.place.Floor[s.selectedFloorIndex] = stax
+				if ctx.Button("Delete") != 0 {
+					s.place.Floor = append(s.place.Floor[:s.selectedFloorIndex], s.place.Floor[s.selectedFloorIndex+1:]...)
+				}
 			}
 		}
 
@@ -341,6 +344,20 @@ func (s *State) windowPolygons(ctx *debugui.Context) {
 						ctx.SetFocus()
 					}
 					ctx.SetLayoutRow([]int{-1}, 0)
+					if polygon.SubKind == res.PolygonInteractUse {
+						ctx.SetLayoutRow([]int{25, -1}, 0)
+						ctx.Label("Target")
+						if ctx.TextBox(&polygon.TargetTag)&debugui.ResponseSubmit != 0 {
+							ctx.SetFocus()
+						}
+						ctx.SetLayoutRow([]int{-1}, 0)
+						ctx.SetLayoutRow([]int{25, -1}, 0)
+						ctx.Label("TA")
+						if ctx.TextBox(&polygon.TargetAction)&debugui.ResponseSubmit != 0 {
+							ctx.SetFocus()
+						}
+						ctx.SetLayoutRow([]int{-1}, 0)
+					}
 				}
 				ctx.SetLayoutRow([]int{25, -1}, 0)
 				ctx.Label("ScriptFile")

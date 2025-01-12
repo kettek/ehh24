@@ -3,16 +3,24 @@ package intro
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kettek/ehh24/pkg/game"
-	"github.com/kettek/ehh24/pkg/res"
+	"github.com/kettek/ehh24/pkg/game/context"
 	"github.com/kettek/ehh24/pkg/statemachine"
 )
 
+type Scene interface {
+	Init()
+	Update() Scene
+	Draw(ctx context.Draw)
+}
+
 // State be our intro.
 type State struct {
-	fadeIn  int
-	fadeOut int
-	width   int
-	height  int
+	scene       Scene
+	fadeIn      int
+	fadeOut     int
+	width       int
+	height      int
+	drawContext context.Draw
 }
 
 // NewState creates a new state.
@@ -25,15 +33,14 @@ func NewState() *State {
 
 // Init is called when the state is to be first entered.
 func (s *State) Init() {
+	s.scene = &Scene1{}
+	s.scene.Init()
 }
 
 // Update updates the state.
 func (s *State) Update() statemachine.State {
-	if s.fadeIn > 0 {
-		s.fadeIn--
-	} else if s.fadeOut > 0 {
-		s.fadeOut--
-	} else {
+	s.scene = s.scene.Update()
+	if s.scene == nil {
 		return game.NewState()
 	}
 	return nil
@@ -41,20 +48,10 @@ func (s *State) Update() statemachine.State {
 
 // Draw draws the state.
 func (s *State) Draw(screen *ebiten.Image) {
-	op := &ebiten.DrawImageOptions{}
-
-	if s.fadeIn > 0 {
-		op.ColorScale.ScaleAlpha(1.0 - float32(s.fadeIn)/100)
-	} else if s.fadeOut > 0 {
-		op.ColorScale.ScaleAlpha(float32(s.fadeOut) / 100)
-	} else {
-		op.ColorScale.ScaleAlpha(0)
-	}
-	{
-		ebi := res.Images["ebiten"]
-		op.GeoM.Translate(float64(s.width)/2-float64(ebi.Bounds().Dy()/2), float64(s.height)/2-float64(ebi.Bounds().Dy())/2)
-		screen.DrawImage(ebi, op)
-	}
+	s.drawContext.Target = screen
+	s.drawContext.Op = &ebiten.DrawImageOptions{}
+	s.drawContext.Op.GeoM.Scale(3, 3)
+	s.scene.Draw(s.drawContext)
 }
 
 // Layout does a layout.

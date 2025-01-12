@@ -7,6 +7,7 @@ import (
 	"github.com/kettek/ehh24/pkg/game"
 	"github.com/kettek/ehh24/pkg/intro"
 	"github.com/kettek/ehh24/pkg/res"
+	"github.com/kettek/ehh24/pkg/splash"
 	"github.com/kettek/ehh24/pkg/statemachine"
 )
 
@@ -25,6 +26,8 @@ func main() {
 		} else if inpututil.IsKeyJustReleased(ebiten.KeyF2) {
 			m.SetState(editor.NewState())
 		} else if inpututil.IsKeyJustReleased(ebiten.KeyF3) {
+			m.SetState(splash.NewState())
+		} else if inpututil.IsKeyJustReleased(ebiten.KeyF4) {
 			m.SetState(intro.NewState())
 		}
 	})

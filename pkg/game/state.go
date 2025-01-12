@@ -62,9 +62,12 @@ func NewState() *State {
 	sno.SetPriority(ables.PriorityOverlay)
 	sno.SetTag("snow")
 
+	fadein := NewFadeInOverlay(320, 240, 100)
+	fadein.SetPriority(ables.PriorityOverlay + 100)
+
 	g.debugUI = NewTargetOverlay(320, 240)
 
-	g.gctx.Referables = Referables{t /*vis, sno,*/, c}
+	g.gctx.Referables = Referables{t /*vis, sno,*/, fadein, c}
 
 	// Some boids of testing.
 	roboid := NewThinger("boid")
