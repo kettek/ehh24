@@ -7,6 +7,7 @@ import (
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/kettek/ehh24/pkg/game/ables"
 	"github.com/kettek/ehh24/pkg/game/context"
 )
@@ -25,6 +26,8 @@ type Thinger struct {
 	faceLeft   bool
 	faceUp     bool
 	lookUp     bool
+	centerX    float64
+	centerY    float64
 	originX    float64
 	originY    float64
 	walking    bool
@@ -78,9 +81,9 @@ func (t *Thinger) Draw(ctx *context.Draw) {
 		slice := t.frame.Slices[i]
 		opts.GeoM.Reset()
 
-		opts.GeoM.Translate(-float64(t.stax.Stax.SliceWidth)/2, float64(t.stax.Stax.SliceHeight))
+		opts.GeoM.Translate(-float64(t.stax.Stax.SliceWidth)*t.centerX, -float64(t.stax.Stax.SliceHeight)*t.centerY)
 		opts.GeoM.Rotate(t.rotation)
-		opts.GeoM.Translate(float64(t.stax.Stax.SliceWidth)/2, -float64(t.stax.Stax.SliceHeight))
+		opts.GeoM.Translate(float64(t.stax.Stax.SliceWidth)*t.centerX, float64(t.stax.Stax.SliceHeight)*t.centerY)
 
 		opts.GeoM.Translate(float64(t.stax.Stax.SliceWidth)*t.originX, float64(t.stax.Stax.SliceHeight)*t.originY)
 
@@ -117,6 +120,12 @@ func (t *Thinger) Draw(ctx *context.Draw) {
 
 		sub := t.stax.EbiImage.SubImage(image.Rect(slice.X, slice.Y, slice.X+t.stax.Stax.SliceWidth, slice.Y+t.stax.Stax.SliceHeight)).(*ebiten.Image)
 		ctx.Target.DrawImage(sub, opts)
+	}
+
+	if debug {
+		cx := t.X() + float64(t.stax.Stax.SliceWidth)*t.centerX
+		cy := t.Y() + float64(t.stax.Stax.SliceHeight)*t.centerY
+		ebitenutil.DrawCircle(ctx.Target, cx*ctx.Op.GeoM.Element(0, 0), cy*ctx.Op.GeoM.Element(0, 0), 2, color.NRGBA{255, 0, 0, 255})
 	}
 
 	if t.monologue != "" {
