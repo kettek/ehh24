@@ -1,6 +1,8 @@
 package game
 
 import (
+	"fmt"
+
 	"github.com/kettek/ehh24/pkg/res"
 	input "github.com/quasilyte/ebitengine-input"
 )
@@ -8,6 +10,8 @@ import (
 // Controller is an interface for controlling a Thinger.
 type Controller interface {
 	Update(ctx *ContextGame, t *Thinger) []Action
+	Block()
+	Unblock()
 }
 
 // PlayerController is a player-driven controller.
@@ -15,9 +19,11 @@ type PlayerController struct {
 	input           *input.Handler
 	action          Action
 	monologueAction Action
+	block           bool
 	lastMouseX      float64
 	lastMouseY      float64
 	impatience      float64
+	heldItem        *InvItem // this is dangerussy
 }
 
 // Our inputs for moving with a PlayerController.
@@ -47,6 +53,9 @@ func NewPlayerController(insys *input.System) *PlayerController {
 
 // Update updates the PlayerController.
 func (p *PlayerController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
+	if p.block {
+		return a
+	}
 	// First see if thinger has hit a trigger area.
 	for _, area := range ctx.Place.areas {
 		if area.ContainsPoint(t.X(), t.Y()) {
@@ -59,6 +68,7 @@ func (p *PlayerController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 						})
 						p.action = nil
 						p.monologueAction = nil
+						p.heldItem = nil
 						return
 					}
 				}
@@ -109,17 +119,21 @@ func (p *PlayerController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 				cx, _ := hitArea.Center()
 				_, _, _, my := hitArea.Bounds()
 				if hitArea.original.SubKind == res.PolygonInteractUse {
-					p.action = &ActionUse{
-						Target: hitArea.original.Tag,
-						ActionMoveTo: ActionMoveTo{
-							X:     cx,
-							Y:     my + 5,
-							Speed: 0.4 * p.impatience,
-						},
-					}
-					p.monologueAction = &ActionMonologue{
-						Text:  hitArea.original.Text,
-						Timer: 100,
+					if p.heldItem != nil {
+						fmt.Println("Using item", p.heldItem.item.Name, "on", hitArea.original.Tag)
+					} else {
+						p.action = &ActionUse{
+							Target: hitArea.original.Tag,
+							ActionMoveTo: ActionMoveTo{
+								X:     cx,
+								Y:     my + 5,
+								Speed: 0.4 * p.impatience,
+							},
+						}
+						p.monologueAction = &ActionMonologue{
+							Text:  hitArea.original.Text,
+							Timer: 100,
+						}
 					}
 					p.impatience += 2.0
 				} else if hitArea.original.SubKind == res.PolygonInteractLook {
@@ -159,6 +173,8 @@ func (p *PlayerController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 				}
 				p.impatience += 2.0
 			}
+			// Ehh...
+			p.heldItem = nil
 		}
 	}
 
@@ -232,6 +248,14 @@ func (p *PlayerController) lookAtIfPossible(t *Thinger, w, h float64) Action {
 	return nil
 }
 
+func (p *PlayerController) Block() {
+	p.block = true
+}
+
+func (p *PlayerController) Unblock() {
+	p.block = false
+}
+
 // CursorController is a controller for the cursor.
 type CursorController struct {
 }
@@ -251,4 +275,10 @@ func (c *CursorController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 	})
 
 	return a
+}
+
+func (c *CursorController) Block() {
+}
+
+func (c *CursorController) Unblock() {
 }

@@ -1,13 +1,14 @@
 package game
 
 import (
-	"fmt"
+	"image"
 	"image/color"
 	"math"
 
-	"github.com/hajimehoshi/ebiten/v2/vector"
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kettek/ehh24/pkg/game/ables"
 	"github.com/kettek/ehh24/pkg/game/context"
+	"github.com/kettek/ehh24/pkg/res"
 )
 
 type Inventory struct {
@@ -15,79 +16,170 @@ type Inventory struct {
 	ables.Priorityable
 	ables.Tagable
 	ables.Positionable
-	tw        float64
-	th        float64
-	width     float64
-	height    float64
-	targetTag string // eh, whatever
-	items     []InvItem
+	tw          float64
+	th          float64
+	width       float64
+	height      float64
+	targetTag   string // eh, whatever
+	items       []InvItem
+	hoveredName string
+	fade        int
 }
 
+const fadeMax = 40
+const fadeMin = 20
+
 type InvItem struct {
-	item     ables.StorageItem
-	staticer *Staticer
+	item   ables.StorageItem
+	staxer Staxer
 }
 
 func NewInventory(tag string) *Inventory {
 	inv := &Inventory{
 		targetTag: tag,
+		fade:      fadeMin,
 	}
 	inv.SetPriority(ables.PriorityUI)
 	inv.SetTag("inventory")
 
-	inv.width = 11 * 2
+	inv.width = 11 * 4
 	inv.height = 11 * 4
 
 	return inv
 }
 
 func (inv *Inventory) ItemBounds(index int) (x, y, x2, y2 float64) {
-	x = inv.X()
-	y = inv.Y()
+	cx := inv.X() + inv.width/2
+	cy := inv.Y() + inv.height/2
 
-	x += float64(index%2) * 11.0
-	y += math.Floor(float64(index)/2.0) * 11 // ??
+	ratio := float64(index) / 6
+	angle := ratio*math.Pi*2 + math.Pi
+	x = cx + math.Cos(angle)*16
+	y = cy + math.Sin(angle)*16
+
+	x -= 4
+	y -= 4
 
 	return x, y, x + 9, y + 9
 }
 
-func (inv *Inventory) Update(ctx *ContextGame) []Change {
-	inv.SetX(ctx.Width/ctx.Zoom - inv.width - 8)
-	inv.SetY(ctx.Height/ctx.Zoom - inv.height - 8)
-
-	inv.items = nil
-	x, y := ctx.MousePosition()
-	if t, ok := ctx.Referables.ByFirstTag(inv.targetTag).(*Thinger); ok {
-		for index, item := range t.Storagable {
-			ix, iy, ix2, iy2 := inv.ItemBounds(index)
-			ix /= ctx.Zoom
-			iy /= ctx.Zoom
-			ix2 /= ctx.Zoom
-			iy2 /= ctx.Zoom
-			if x >= ix && x <= ix2 && y >= iy && y <= iy2 {
-				fmt.Println("hit item", item)
-			}
-			inv.items = append(inv.items, InvItem{
-				item:     item,
-				staticer: NewStaticer(item.Tag),
-			})
+func (inv *Inventory) SyncTo(storage ables.Storagable) {
+	// Grow/shrink.
+	if len(inv.items) < len(storage) {
+		for i := len(inv.items); i < len(storage); i++ {
+			inv.items = append(inv.items, InvItem{})
+		}
+	} else if len(inv.items) > len(storage) {
+		inv.items = inv.items[:len(storage)]
+	}
+	// Sync items.
+	for i, item := range storage {
+		if item.Tag != inv.items[i].item.Tag {
+			inv.items[i].item = item
+			inv.items[i].staxer = NewStaxer(item.Tag)
 		}
 	}
+}
+
+func (inv *Inventory) Update(ctx *ContextGame) []Change {
+	w, h := ctx.Size()
+	inv.SetX(w/2 - inv.width/2)
+	inv.SetY(h - inv.height - 8)
+
+	// I guess just get our target and sync to it.
+	if t, ok := ctx.Referables.ByFirstTag(inv.targetTag).(*Thinger); ok {
+		inv.SyncTo(t.Storagable)
+	}
+
+	x, y := ctx.MousePosition()
+	inv.hoveredName = ""
+	if t, ok := ctx.Referables.ByFirstTag(inv.targetTag).(*Thinger); ok {
+		if t.controller != nil {
+			t.controller.Unblock()
+		}
+		pc := t.controller.(*PlayerController) // hackiness abounds.
+		for index, item := range t.Storagable {
+			ix, iy, ix2, iy2 := inv.ItemBounds(index)
+			if x >= ix && x <= ix2 && y >= iy && y <= iy2 {
+				inv.hoveredName = item.Name
+				// Get our cursor and show pickup.
+				if c, ok := ctx.Referables.ByFirstTag("cursor").(*Thinger); ok {
+					c.Animation("grab")
+				}
+				if t.controller != nil {
+					t.controller.Block()
+				}
+				if pc != nil {
+					if pc.input.ActionIsPressed(InputMoveTo) {
+						pc.heldItem = &inv.items[index] // uh-oh!!!
+					}
+				}
+			}
+		}
+	}
+
+	// Fade in the orb while hovered.
+	if x >= inv.X() && x <= inv.X()+inv.width && y >= inv.Y() && y <= inv.Y()+inv.height {
+		if inv.fade < fadeMax {
+			inv.fade++
+		}
+	} else {
+		if inv.fade > fadeMin {
+			inv.fade--
+		}
+	}
+
 	return nil
 }
 
 func (inv *Inventory) Draw(ctx *context.Draw) {
-	zoom := ctx.Op.GeoM.Element(0, 0)
-	x := inv.X()
-	y := inv.Y()
-	vector.DrawFilledRect(ctx.Target, float32(x*zoom), float32(y*zoom), float32(inv.width*zoom), float32(inv.height*zoom), color.NRGBA{255, 0, 0, 255}, true)
-	for index, _ := range inv.items {
-		x1, y1, x2, y2 := inv.ItemBounds(index)
-		w := x2 - x1
-		h := y2 - y1
-		//x1 += w / 2
-		//y1 += h / 2
-		vector.DrawFilledRect(ctx.Target, float32(x1*zoom), float32(y1*zoom), float32(w*zoom), float32(h*zoom), color.White, true)
+	{
+		op := &ebiten.DrawImageOptions{}
+		op.GeoM.Translate(inv.X(), inv.Y())
+		op.GeoM.Concat(ctx.Op.GeoM)
+		op.ColorScale.ScaleAlpha(float32(inv.fade) / fadeMax)
+		ctx.Target.DrawImage(res.Images["orb"], op)
+	}
+
+	for index, item := range inv.items {
+		op := &ebiten.DrawImageOptions{}
+		ix, iy, _, _ := inv.ItemBounds(index)
+		op.GeoM.Translate(ix, iy)
+		op.GeoM.Concat(ctx.Op.GeoM)
+		inv.DrawItem(ctx, op, item)
+	}
+
+	if inv.hoveredName != "" {
+		geom := ebiten.GeoM{}
+		geom.Translate(ctx.MousePosition())
+		geom.Translate(0, -16)
+		geom.Concat(ctx.Op.GeoM)
+		alpha := float32(inv.fade) / fadeMax
+		ctx.Text(inv.hoveredName, geom, color.NRGBA{139, 98, 16, uint8(alpha * 255)})
+	}
+}
+
+func (inv *Inventory) DrawItem(ctx *context.Draw, op *ebiten.DrawImageOptions, item InvItem) {
+	opts := &ebiten.DrawImageOptions{}
+
+	const sliceDistance = 1
+	sliceDistanceEnd := math.Max(1, sliceDistance*op.GeoM.Element(0, 0))
+
+	for i, slice := range item.staxer.frame.Slices {
+		for j := 0; j < int(sliceDistanceEnd); j++ {
+			opts.GeoM.Reset()
+
+			opts.GeoM.Translate(0, -sliceDistance*float64(i))
+
+			opts.GeoM.Concat(op.GeoM)
+
+			opts.GeoM.Translate(0, float64(j))
+			opts.ColorScale.ScaleAlpha(float32(inv.fade) / fadeMax)
+
+			opts.Blend = ctx.Op.Blend
+			sub := item.staxer.stax.EbiImage.SubImage(image.Rect(slice.X, slice.Y, slice.X+item.staxer.stax.Stax.SliceWidth, slice.Y+item.staxer.stax.Stax.SliceHeight)).(*ebiten.Image)
+			ctx.Target.DrawImage(sub, opts)
+		}
 	}
 }
 

@@ -19,6 +19,7 @@ type BoidController struct {
 	shouldSettle bool
 	settles      bool
 	meander      bool
+	block        bool
 }
 
 // NewBoidController makes a new boid controller.
@@ -34,6 +35,9 @@ func NewBoidController(flockID int) *BoidController {
 
 // Update updates.
 func (b *BoidController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
+	if b.block {
+		return
+	}
 	boidRefs := ctx.Referables.ByTag("boid")
 
 	boids := make([]*Thinger, 0, len(boidRefs))
@@ -252,4 +256,12 @@ func (b *BoidController) distance(self, other *Thinger) float64 {
 		(self.X()-other.X())*(self.X()-other.X()) +
 			(self.Y()-other.Y())*(self.Y()-other.Y()),
 	)
+}
+
+func (b *BoidController) Block() {
+	b.block = true
+}
+
+func (b *BoidController) Unblock() {
+	b.block = false
 }

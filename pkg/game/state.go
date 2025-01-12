@@ -115,6 +115,11 @@ func NewState() *State {
 
 	g.midlay = ebiten.NewImage(320, 240)
 
+	inventory := NewInventory("qi")
+	inventory.SetPriority(ables.PriorityUI)
+	inventory.SetTag("inventory")
+	g.gctx.Referables = append(g.gctx.Referables, inventory)
+
 	// for now, just try to load in test place.
 	g.gctx.Place = NewPlace("testie")
 	g.gctx.Places["testie"] = g.gctx.Place

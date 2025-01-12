@@ -328,6 +328,9 @@ func (s *State) windowPolygons(ctx *debugui.Context) {
 						if ctx.Button("Use") != 0 {
 							polygon.SubKind = res.PolygonInteractUse
 						}
+						if ctx.Button("UseItem") != 0 {
+							polygon.SubKind = res.PolygonInteractUseItem
+						}
 						if ctx.Button("Look") != 0 {
 							polygon.SubKind = res.PolygonInteractLook
 						}

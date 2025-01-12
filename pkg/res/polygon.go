@@ -73,6 +73,8 @@ const (
 	//
 	PolygonTriggerTravel
 	PolygonTriggerScript
+	// oop
+	PolygonInteractUseItem
 )
 
 // String returns the string representation of a PolygonSubKind.
@@ -80,6 +82,8 @@ func (k PolygonSubKind) String() string {
 	switch k {
 	case PolygonInteractUse:
 		return "Use"
+	case PolygonInteractUseItem:
+		return "UseItem"
 	case PolygonInteractLook:
 		return "Look"
 	case PolygonInteractPickup:
