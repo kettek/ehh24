@@ -445,6 +445,12 @@ func (s *State) windowPolygons(ctx *debugui.Context) {
 func (s *State) windowOptions(ctx *debugui.Context) {
 	ctx.Window("Options", posOptions.Rect(), func(resp debugui.Response, layout debugui.Layout) {
 		s.windowAreas["Options"] = layout.Rect
+		ctx.SetLayoutRow([]int{30, -1}, 0)
+		ctx.Label("Name")
+		if ctx.TextBox(&s.place.Name)&debugui.ResponseSubmit != 0 {
+			ctx.SetFocus()
+		}
+		ctx.SetLayoutRow([]int{-1}, 0)
 		ctx.SetLayoutRow([]int{40, 30, 30, -1}, 0)
 		ctx.Label("Zoom")
 		if ctx.Button("-") != 0 {
