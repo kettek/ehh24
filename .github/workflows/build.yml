@@ -11,7 +11,7 @@ jobs:
         with:
           go-version: "1.23"
       - name: Build Windows exe
-        working-directory: cmd/game
+        working-directory: cmd/ehh24
         shell: bash
         run: go build -o ../../ehh24.exe
       - name: Upload Windows exe
@@ -31,7 +31,7 @@ jobs:
         with:
           go-version: "1.23"
       - name: Build Mac exe
-        working-directory: cmd/game
+        working-directory: cmd/ehh24
         shell: bash
         run: go build -o ../../ehh24
       - name: Tar it up
@@ -56,7 +56,7 @@ jobs:
         shell: bash
         run: sudo apt-get update && sudo apt-get -y install libgl1-mesa-dev xorg-dev libasound2-dev
       - name: Build Linux exe
-        working-directory: cmd/game
+        working-directory: cmd/ehh24
         shell: bash
         run: go build -o ../../ehh24
       - name: Tar it up
@@ -78,7 +78,7 @@ jobs:
         with:
           go-version: "1.23"
       - name: Build Web binary
-        working-directory: cmd/game
+        working-directory: cmd/ehh24
         shell: bash
         run: GOOS=js GOARCH=wasm go build -o ../../web/ehh24.wasm
       - name: Copy WASM exec script
