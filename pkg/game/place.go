@@ -24,14 +24,14 @@ func NewPlace(name string) *Place {
 	p := &Place{}
 
 	// Load from res.
-	rp, ok := res.Places["places/"+name]
+	rp, ok := res.Places[name]
 	if !ok {
 		panic("place not found: " + name)
 	}
 	p.Name = rp.Name
 
 	// Setup interpreter stuff
-	if script, ok := res.Scripts["places/"+name]; ok {
+	if script, ok := res.Scripts[name]; ok {
 		p.interp = interp.New(interp.Options{})
 		setupInterp(p.interp, script)
 		if fn, err := p.interp.Eval("Enter"); err == nil {

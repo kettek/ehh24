@@ -14,8 +14,8 @@ import (
 )
 
 //go:embed *.png
-//go:embed places/*.json
-//go:embed places/*.txt
+//go:embed *.json
+//go:embed *.txt
 //go:embed nokore.ttf
 var f embed.FS
 

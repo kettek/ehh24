@@ -19,7 +19,7 @@ func main() {
 	ebiten.SetWindowSize(1280, 720)
 	ebiten.SetWindowTitle("Hello, 世界")
 
-	m := statemachine.NewMachine(game.NewState())
+	m := statemachine.NewMachine(splash.NewState())
 	m.AddCheck(func() {
 		if inpututil.IsKeyJustReleased(ebiten.KeyF1) {
 			m.SetState(game.NewState())
