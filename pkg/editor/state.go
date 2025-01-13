@@ -117,6 +117,20 @@ func (s *State) Update() statemachine.State {
 		s.selectedPolygonIndex = -1
 		s.currentStax = ""
 		s.tool.Reset()
+	} else if inpututil.IsKeyJustReleased(ebiten.KeyDelete) {
+		if s.tool.Name() == (ToolFloor{}).Name() {
+			if s.selectedFloorIndex >= 0 && s.selectedFloorIndex < len(s.place.Floor) {
+				s.place.Floor = append(s.place.Floor[:s.selectedFloorIndex], s.place.Floor[s.selectedFloorIndex+1:]...)
+			}
+		} else if s.tool.Name() == (ToolPolygon{}).Name() || s.tool.Name() == (ToolPolygonSelect{}).Name() {
+			if s.selectedPolygonIndex >= 0 && s.selectedPolygonIndex < len(s.place.Polygons) {
+				s.place.Polygons = append(s.place.Polygons[:s.selectedPolygonIndex], s.place.Polygons[s.selectedPolygonIndex+1:]...)
+			}
+		} else if s.tool.Name() == (ToolStatic{}).Name() {
+			if s.selectedStaticIndex >= 0 && s.selectedStaticIndex < len(s.place.Statics) {
+				s.place.Statics = append(s.place.Statics[:s.selectedStaticIndex], s.place.Statics[s.selectedStaticIndex+1:]...)
+			}
+		}
 	}
 
 	return nil
@@ -337,6 +351,7 @@ func (s *State) windowPolygons(ctx *debugui.Context) {
 				if ctx.Button(fmt.Sprintf("Kind: %s", polygon.Kind.String())) != 0 {
 					ctx.OpenPopup("Change Kind")
 				}
+				ctx.Checkbox("Disabled", &polygon.Disabled)
 				if polygon.Kind == res.PolygonKindInteract {
 					ctx.Popup("Change SubKind", func(resp debugui.Response, layout debugui.Layout) {
 						s.windowAreas["Popup"] = layout.Rect
@@ -388,6 +403,9 @@ func (s *State) windowPolygons(ctx *debugui.Context) {
 						}
 						if ctx.Button("Script") != 0 {
 							polygon.SubKind = res.PolygonTriggerScript
+						}
+						if ctx.Button("State") != 0 {
+							polygon.SubKind = res.PolygonTriggerState
 						}
 					})
 					if ctx.Button(fmt.Sprintf("SubKind: %s", polygon.SubKind.String())) != 0 {

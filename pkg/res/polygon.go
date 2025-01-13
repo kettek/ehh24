@@ -20,6 +20,7 @@ type Polygon struct {
 	TargetAction string // As above.
 	Script       string // Lookup script name, if applicable
 	Text         string // Text to display, if applicable
+	Disabled     bool
 	// Interact
 	TargetItem string // Item that this polygon uses
 }
@@ -76,6 +77,7 @@ const (
 	//
 	PolygonTriggerTravel
 	PolygonTriggerScript
+	PolygonTriggerState
 )
 
 // String returns the string representation of a PolygonSubKind.
@@ -91,6 +93,8 @@ func (k PolygonSubKind) String() string {
 		return "Travel"
 	case PolygonTriggerScript:
 		return "Script"
+	case PolygonTriggerState:
+		return "State"
 	}
 	return ""
 }

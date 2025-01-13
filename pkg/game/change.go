@@ -3,6 +3,7 @@ package game
 import (
 	"strings"
 
+	"github.com/kettek/ehh24/pkg/game/ables"
 	"github.com/kettek/ehh24/pkg/res"
 )
 
@@ -52,6 +53,41 @@ func (c *ChangeTravel) Apply(ctx *ContextGame) {
 		place := NewPlace(placeName)
 		ctx.Places[placeName] = place
 		ctx.Place = place
+
+		// Alright, hacky time...
+		if placeName == "outside" {
+			roboid := NewThinger("boid")
+			roboid.SetX(300)
+			roboid.SetY(200)
+			rc := NewBoidController(1)
+			rc.settles = true
+			if pl, ok := ctx.Referables.ByFirstTag("qi").(*Thinger); ok {
+				rc.targetID = pl.ID()
+			}
+			roboid.controller = rc
+			roboid.centerX = 0.5
+			roboid.centerY = 0.5
+			roboid.SetPriority(ables.PriorityMiddle)
+			roboid.SetTag("boid")
+			roboid.Stack("roboid")
+			ctx.Place.referables = append(ctx.Place.referables, roboid)
+			for i := 0; i < 20; i++ {
+				b := NewThinger("boid")
+				bc := NewBoidController(1)
+				bc.settles = true
+				bc.targetID = roboid.ID()
+				b.controller = bc
+				b.centerX = 0.5
+				b.centerY = 0.5
+				b.SetPriority(ables.PriorityMiddle)
+				b.SetTag("boid")
+				if i%2 == 0 {
+					b.Stack("boid2")
+				}
+				ctx.Place.referables = append(ctx.Place.referables, b)
+			}
+		}
+
 	}
 	ctx.Place.referables = append(ctx.Place.referables, NewFadeInOverlay(int(ctx.Width), int(ctx.Height), 50))
 	// Move player into position.
@@ -63,6 +99,16 @@ func (c *ChangeTravel) Apply(ctx *ContextGame) {
 				pl.SetY(y)
 			}
 		}
+	}
+}
+
+type ChangeState struct {
+	State string
+}
+
+func (c *ChangeState) Apply(ctx *ContextGame) {
+	if c.State == "end" {
+		// ???
 	}
 }
 
@@ -116,12 +162,25 @@ func (c *ChangeUse) Apply(ctx *ContextGame) {
 			if area2 := ctx.Place.GetAreaByFirstTag(target); area2 != nil {
 				if act == "del" {
 					ctx.Place.RemoveAreaByFirstTag(target)
+				} else if act == "enable" {
+					area2.original.Disabled = false
+				} else if act == "disable" {
+					area2.original.Disabled = true
 				}
 			}
 			// Check referables too, I guess.
 			if ref := ctx.Place.referables.ByFirstTag(target); ref != nil {
 				if act == "del" {
 					ctx.Place.referables.RemoveByFirstTag(target)
+				} else if strings.HasPrefix(act, "anim") {
+					parts := strings.Split(act, ":")
+					if len(parts) < 2 {
+						continue
+					}
+					ctx.Place.referables.ByFirstTag(target)
+					if s, ok := ref.(*Staticer); ok {
+						s.Animation(parts[1])
+					}
 				}
 			}
 		}

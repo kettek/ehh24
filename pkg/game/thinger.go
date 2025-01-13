@@ -41,7 +41,7 @@ type Thinger struct {
 func NewThinger(name string) *Thinger {
 	return &Thinger{
 		Staxer:       NewStaxer(name),
-		Positionable: ables.MakePositionable(128, 128),
+		Positionable: ables.MakePositionable(200, 200),
 		IDable:       ables.NextIDable(),
 	}
 }

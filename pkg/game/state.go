@@ -8,6 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/kettek/ehh24/pkg/game/ables"
 	"github.com/kettek/ehh24/pkg/game/context"
+	"github.com/kettek/ehh24/pkg/outro"
 	"github.com/kettek/ehh24/pkg/statemachine"
 	input "github.com/quasilyte/ebitengine-input"
 )
@@ -154,6 +155,12 @@ func (g *State) Update() statemachine.State {
 	startProfile("changes")
 	for _, c := range changes {
 		c.Apply(&g.gctx)
+		// I'm sorry for this...
+		if c, ok := c.(*ChangeState); ok {
+			if c.State == "end" {
+				return outro.NewState()
+			}
+		}
 	}
 	endProfile("changes")
 

@@ -69,6 +69,13 @@ func (p *PlayerController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 						p.heldItem = nil
 						return
 					}
+				case res.PolygonTriggerState:
+					if area.original.TargetTag != "" {
+						a = append(a, &ActionState{
+							State: area.original.TargetTag,
+						})
+						return
+					}
 				}
 			}
 		}
@@ -110,6 +117,9 @@ func (p *PlayerController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 		// Try for new space hits...
 		var hitArea *Area
 		for _, area := range ctx.Place.areas {
+			if area.original.Disabled {
+				continue
+			}
 			if area.ContainsPoint(x, y) {
 				switch area.original.Kind {
 				case res.PolygonKindInteract:
@@ -125,6 +135,8 @@ func (p *PlayerController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 				case res.PolygonKindTrigger:
 					if area.original.SubKind == res.PolygonTriggerTravel {
 						c.Animation("travel")
+					} else if area.original.SubKind == res.PolygonTriggerState {
+						c.Animation("end")
 					}
 				}
 			}

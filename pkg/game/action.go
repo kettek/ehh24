@@ -140,7 +140,7 @@ func (a *ActionPickup) Apply(t *Thinger) []Change {
 	dx := a.X - t.X()
 	dy := a.Y - t.Y()
 	dist := math.Sqrt(dx*dx + dy*dy)
-	if dist < 10 { // Eh... 10 seems good enough
+	if dist < 20 { // Eh... 10 seems good enough
 		a.done = true
 		return []Change{
 			&ChangeAcquireItem{
@@ -247,4 +247,16 @@ func (a *ActionMonologue) Apply(t *Thinger) []Change {
 
 func (a *ActionMonologue) Done() bool {
 	return a.Timer <= 0
+}
+
+type ActionState struct {
+	State string
+}
+
+func (a *ActionState) Apply(t *Thinger) []Change {
+	return []Change{&ChangeState{State: a.State}}
+}
+
+func (a *ActionState) Done() bool {
+	return true
 }
