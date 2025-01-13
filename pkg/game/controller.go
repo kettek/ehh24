@@ -109,6 +109,10 @@ func (p *PlayerController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 					case res.PolygonInteractPickup:
 						c.Animation("grab")
 					}
+				case res.PolygonKindTrigger:
+					if area.original.SubKind == res.PolygonTriggerTravel {
+						c.Animation("travel")
+					}
 				}
 			}
 		}
