@@ -15,13 +15,13 @@ type Polygon struct {
 	SubKind PolygonSubKind
 	Kind    PolygonKind
 	// We're just going to overload the polygon with everything. It's not pleasant, but it makes the code simpler and we don't have to finagle with type unmarshalling/marshalling or using shared field names.
-	Tag          string
-	TargetTag    string
-	TargetAction string
+	Tag          string // Our polygon's tag.
+	TargetTag    string // Tag to target with action
+	TargetAction string // As above.
 	Script       string // Lookup script name, if applicable
 	Text         string // Text to display, if applicable
 	// Interact
-	UseTarget string
+	TargetItem string // Item that this polygon uses
 }
 
 // PolygonKind represents the kind of a polygon.
@@ -76,8 +76,6 @@ const (
 	//
 	PolygonTriggerTravel
 	PolygonTriggerScript
-	// oop
-	PolygonInteractUseItem
 )
 
 // String returns the string representation of a PolygonSubKind.
@@ -85,8 +83,6 @@ func (k PolygonSubKind) String() string {
 	switch k {
 	case PolygonInteractUse:
 		return "Use"
-	case PolygonInteractUseItem:
-		return "UseItem"
 	case PolygonInteractLook:
 		return "Look"
 	case PolygonInteractPickup:

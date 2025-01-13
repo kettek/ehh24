@@ -1,8 +1,6 @@
 package game
 
 import (
-	"fmt"
-
 	"github.com/kettek/ehh24/pkg/res"
 	input "github.com/quasilyte/ebitengine-input"
 )
@@ -119,8 +117,31 @@ func (p *PlayerController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 				cx, _ := hitArea.Center()
 				_, _, _, my := hitArea.Bounds()
 				if hitArea.original.SubKind == res.PolygonInteractUse {
-					if p.heldItem != nil {
-						fmt.Println("Using item", p.heldItem.item.Name, "on", hitArea.original.Tag)
+					if hitArea.original.TargetItem != "" {
+						if p.heldItem == nil {
+							p.monologueAction = &ActionMonologue{
+								Text:  "ダメ",
+								Timer: 100,
+							}
+						} else if p.heldItem.item.Tag == hitArea.original.TargetItem {
+							p.action = &ActionUse{
+								Target: hitArea.original.Tag,
+								ActionMoveTo: ActionMoveTo{
+									X:     cx,
+									Y:     my + 5,
+									Speed: 0.4 * p.impatience,
+								},
+							}
+							p.monologueAction = &ActionMonologue{
+								Text:  "ハイ",
+								Timer: 100,
+							}
+						} else {
+							p.monologueAction = &ActionMonologue{
+								Text:  "イイエ",
+								Timer: 100,
+							}
+						}
 					} else {
 						p.action = &ActionUse{
 							Target: hitArea.original.Tag,

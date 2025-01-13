@@ -343,9 +343,6 @@ func (s *State) windowPolygons(ctx *debugui.Context) {
 						if ctx.Button("Use") != 0 {
 							polygon.SubKind = res.PolygonInteractUse
 						}
-						if ctx.Button("UseItem") != 0 {
-							polygon.SubKind = res.PolygonInteractUseItem
-						}
 						if ctx.Button("Look") != 0 {
 							polygon.SubKind = res.PolygonInteractLook
 						}
@@ -364,13 +361,20 @@ func (s *State) windowPolygons(ctx *debugui.Context) {
 					ctx.SetLayoutRow([]int{-1}, 0)
 					if polygon.SubKind == res.PolygonInteractUse {
 						ctx.SetLayoutRow([]int{labelWidth, -1}, 0)
+						ctx.Label("Item")
+						if ctx.TextBox(&polygon.TargetItem)&debugui.ResponseSubmit != 0 {
+							ctx.SetFocus()
+						}
+						ctx.SetLayoutRow([]int{-1}, 0)
+						ctx.SetLayoutRow([]int{labelWidth, -1}, 0)
+						ctx.SetLayoutRow([]int{labelWidth, -1}, 0)
 						ctx.Label("Target")
 						if ctx.TextBox(&polygon.TargetTag)&debugui.ResponseSubmit != 0 {
 							ctx.SetFocus()
 						}
 						ctx.SetLayoutRow([]int{-1}, 0)
 						ctx.SetLayoutRow([]int{labelWidth, -1}, 0)
-						ctx.Label("TA")
+						ctx.Label("Action")
 						if ctx.TextBox(&polygon.TargetAction)&debugui.ResponseSubmit != 0 {
 							ctx.SetFocus()
 						}
