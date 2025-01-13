@@ -140,6 +140,9 @@ func (inv *Inventory) Update(ctx *ContextGame) []Change {
 }
 
 func (inv *Inventory) Draw(ctx *context.Draw) {
+	if len(inv.items) == 0 {
+		return
+	}
 	{
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Translate(inv.X(), inv.Y())

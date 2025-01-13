@@ -431,9 +431,9 @@ func (s *State) windowPolygons(ctx *debugui.Context) {
 		for i, p := range s.place.Polygons {
 			var str string
 			if p.Tag != "" {
-				str = p.Tag
+				str = fmt.Sprintf("%d %s", i, p.Tag)
 			} else {
-				str = fmt.Sprintf("%s %d", p.Kind.String(), i)
+				str = fmt.Sprintf("%d %s", i, p.Kind.String())
 			}
 			if ctx.Button(str) != 0 {
 				s.selectedPolygonIndex = i

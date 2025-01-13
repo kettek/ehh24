@@ -1,7 +1,6 @@
 package game
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/kettek/ehh24/pkg/res"
@@ -103,7 +102,6 @@ type ChangeUse struct {
 }
 
 func (c *ChangeUse) Apply(ctx *ContextGame) {
-	fmt.Println("... using ", c.Tag)
 	// Alright, let's see what the given area does.
 	if area := ctx.Place.GetAreaByFirstTag(c.Tag); area != nil {
 		targets := strings.Split(area.original.TargetTag, ";")

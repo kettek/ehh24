@@ -121,8 +121,13 @@ func NewState() *State {
 	g.gctx.Referables = append(g.gctx.Referables, inventory)
 
 	// for now, just try to load in test place.
-	g.gctx.Place = NewPlace("testie")
-	g.gctx.Places["testie"] = g.gctx.Place
+	g.gctx.Place = NewPlace("cells")
+	g.gctx.Places["cells"] = g.gctx.Place
+	if start := g.gctx.Place.GetAreaByFirstTag("spawn"); start != nil {
+		cx, cy := start.Center()
+		t.SetX(cx)
+		t.SetY(cy)
+	}
 
 	return g
 }
