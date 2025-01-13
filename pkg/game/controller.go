@@ -94,6 +94,19 @@ func (p *PlayerController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 	if cursor := ctx.Referables.ByFirstTag("cursor"); cursor != nil {
 		c := cursor.(*Thinger)
 		c.Animation("cursor")
+
+		// See if we're looking at ourself.
+		var hitSelf bool
+		{
+			x1 := t.X() - 3
+			x2 := t.X() + 3
+			y1 := t.Y() - 18
+			y2 := t.Y() - 3
+			if x >= x1 && x <= x2 && y >= y1 && y <= y2 {
+				hitSelf = true
+				c.Animation("look")
+			}
+		}
 		// Try for new space hits...
 		var hitArea *Area
 		for _, area := range ctx.Place.areas {
@@ -192,12 +205,20 @@ func (p *PlayerController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 					p.impatience += 2.0
 				}
 			} else {
-				p.action = &ActionMoveTo{
-					X:     x,
-					Y:     y,
-					Speed: 0.4 * p.impatience,
+				// If we click ourselves, might as well say what we are.
+				if hitSelf {
+					p.monologueAction = &ActionMonologue{
+						Text:  "チ",
+						Timer: 100,
+					}
+				} else {
+					p.action = &ActionMoveTo{
+						X:     x,
+						Y:     y,
+						Speed: 0.4 * p.impatience,
+					}
+					p.impatience += 2.0
 				}
-				p.impatience += 2.0
 			}
 			// Ehh...
 			p.heldItem = nil
