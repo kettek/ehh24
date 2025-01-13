@@ -55,6 +55,6 @@ func (s *Scene1) Draw(ctx context.Draw) {
 
 	ctx.Text("アリガトウゴザイマス！", op.GeoM, clr)
 
-	op.GeoM.Translate(0, 20)
+	op.GeoM.Translate(40, 20)
 	ctx.Target.DrawImage(res.Images["thanks"], op)
 }

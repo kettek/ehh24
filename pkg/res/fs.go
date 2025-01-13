@@ -1,6 +1,7 @@
 package res
 
 import (
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -51,7 +52,7 @@ func ReadDir(name string) ([]fs.DirEntry, error) {
 	p := filepath.Join("res", name)
 	entries, err := os.ReadDir(p)
 	if err != nil {
-		return nil, err
+		fmt.Println(err)
 	}
 
 	embedEntries, err := f.ReadDir(name)
