@@ -15,9 +15,9 @@ func (s *Storagable) AddItem(name string, tag string) {
 }
 
 // RemoveItem removes an item from storage, decrementing count if existing.
-func (s *Storagable) RemoveItem(name string) {
+func (s *Storagable) RemoveItem(tag string) {
 	for i, item := range *s {
-		if item.Name == name {
+		if item.Tag == tag {
 			(*s)[i].Count--
 			if (*s)[i].Count == 0 {
 				*s = append((*s)[:i], (*s)[i+1:]...)

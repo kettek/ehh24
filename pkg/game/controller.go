@@ -126,6 +126,7 @@ func (p *PlayerController) Update(ctx *ContextGame, t *Thinger) (a []Action) {
 						} else if p.heldItem.item.Tag == hitArea.original.TargetItem {
 							p.action = &ActionUse{
 								Target: hitArea.original.Tag,
+								Item:   p.heldItem.item.Tag, // Remove from inventory
 								ActionMoveTo: ActionMoveTo{
 									X:     cx,
 									Y:     my + 5,

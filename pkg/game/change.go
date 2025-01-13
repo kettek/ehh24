@@ -86,6 +86,18 @@ func (c *ChangeAcquireItem) Apply(ctx *ContextGame) {
 	}
 }
 
+// ChangeLoseItem removes the item from the player's inventory.
+type ChangeLoseItem struct {
+	Tag string
+}
+
+// Apply applies the change to the game.
+func (c *ChangeLoseItem) Apply(ctx *ContextGame) {
+	if pl, ok := ctx.Referables.ByFirstTag("qi").(*Thinger); ok {
+		pl.RemoveItem(c.Tag)
+	}
+}
+
 type ChangeUse struct {
 	Tag string
 }

@@ -1,6 +1,9 @@
 package game
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 // Action represents an action that can be applied to a thinger, optionally looping with Done() checks.
 type Action interface {
@@ -158,20 +161,26 @@ func (a *ActionPickup) Done() bool {
 type ActionUse struct {
 	ActionMoveTo
 	Target string
+	Item   string
 }
 
 // Apply does the thing.
-func (a *ActionUse) Apply(t *Thinger) []Change {
+func (a *ActionUse) Apply(t *Thinger) (c []Change) {
 	dx := a.X - t.X()
 	dy := a.Y - t.Y()
 	dist := math.Sqrt(dx*dx + dy*dy)
 	if dist < 10 { // Eh... 10 seems good enough
 		a.done = true
-		return []Change{
-			&ChangeUse{
-				Tag: a.Target,
-			},
+		c = append(c, &ChangeUse{
+			Tag: a.Target,
+		})
+		if a.Item != "" {
+			fmt.Println("remove", a.Item)
+			c = append(c, &ChangeLoseItem{
+				Tag: a.Item,
+			})
 		}
+		return c
 	}
 	// Otherwise...
 	return a.ActionMoveTo.Apply(t)
