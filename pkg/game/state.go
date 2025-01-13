@@ -223,6 +223,8 @@ func (g *State) Draw(screen *ebiten.Image) {
 
 // Layout is a thing, yo.
 func (g *State) Layout(ow, oh int) (int, int) {
+	ow = 1280
+	oh = 720
 	if g.dctx.Width != float64(ow) || g.dctx.Height != float64(oh) {
 		g.dctx.Width = float64(ow)
 		g.dctx.Height = float64(oh)
