@@ -16,14 +16,15 @@ type Inventory struct {
 	ables.Priorityable
 	ables.Tagable
 	ables.Positionable
-	tw          float64
-	th          float64
-	width       float64
-	height      float64
-	targetTag   string // eh, whatever
-	items       []InvItem
-	hoveredName string
-	fade        int
+	tw            float64
+	th            float64
+	width         float64
+	height        float64
+	targetTag     string // eh, whatever
+	items         []InvItem
+	hoveredName   string
+	fade          int
+	heldItemIndex int
 }
 
 const fadeMax = 40
@@ -98,6 +99,7 @@ func (inv *Inventory) Update(ctx *ContextGame) []Change {
 			t.controller.Unblock()
 		}
 		pc := t.controller.(*PlayerController) // hackiness abounds.
+		inv.heldItemIndex = -1
 		for index, item := range t.Storagable {
 			ix, iy, ix2, iy2 := inv.ItemBounds(index)
 			if x >= ix && x <= ix2 && y >= iy && y <= iy2 {
@@ -113,6 +115,11 @@ func (inv *Inventory) Update(ctx *ContextGame) []Change {
 					if pc.input.ActionIsPressed(InputMoveTo) {
 						pc.heldItem = &inv.items[index] // uh-oh!!!
 					}
+				}
+			}
+			if pc != nil && pc.heldItem != nil {
+				if pc.heldItem == &inv.items[index] {
+					inv.heldItemIndex = index
 				}
 			}
 		}
@@ -146,7 +153,7 @@ func (inv *Inventory) Draw(ctx *context.Draw) {
 		ix, iy, _, _ := inv.ItemBounds(index)
 		op.GeoM.Translate(ix, iy)
 		op.GeoM.Concat(ctx.Op.GeoM)
-		inv.DrawItem(ctx, op, item)
+		inv.DrawItem(ctx, op, item, true)
 	}
 
 	if inv.hoveredName != "" {
@@ -157,9 +164,18 @@ func (inv *Inventory) Draw(ctx *context.Draw) {
 		alpha := float32(inv.fade) / fadeMax
 		ctx.Text(inv.hoveredName, geom, color.NRGBA{139, 98, 16, uint8(alpha * 255)})
 	}
+
+	if inv.heldItemIndex != -1 {
+		op := &ebiten.DrawImageOptions{}
+		op.GeoM.Translate(ctx.MousePosition())
+		op.GeoM.Translate(0, -8)
+		op.GeoM.Translate(-float64(inv.items[inv.heldItemIndex].staxer.stax.Stax.SliceWidth/2), -float64(inv.items[inv.heldItemIndex].staxer.stax.Stax.SliceHeight/2))
+		op.GeoM.Concat(ctx.Op.GeoM)
+		inv.DrawItem(ctx, op, inv.items[inv.heldItemIndex], false)
+	}
 }
 
-func (inv *Inventory) DrawItem(ctx *context.Draw, op *ebiten.DrawImageOptions, item InvItem) {
+func (inv *Inventory) DrawItem(ctx *context.Draw, op *ebiten.DrawImageOptions, item InvItem, fade bool) {
 	opts := &ebiten.DrawImageOptions{}
 
 	const sliceDistance = 1
@@ -174,7 +190,9 @@ func (inv *Inventory) DrawItem(ctx *context.Draw, op *ebiten.DrawImageOptions, i
 			opts.GeoM.Concat(op.GeoM)
 
 			opts.GeoM.Translate(0, float64(j))
-			opts.ColorScale.ScaleAlpha(float32(inv.fade) / fadeMax)
+			if fade {
+				opts.ColorScale.ScaleAlpha(float32(inv.fade) / fadeMax)
+			}
 
 			opts.Blend = ctx.Op.Blend
 			sub := item.staxer.stax.EbiImage.SubImage(image.Rect(slice.X, slice.Y, slice.X+item.staxer.stax.Stax.SliceWidth, slice.Y+item.staxer.stax.Stax.SliceHeight)).(*ebiten.Image)
