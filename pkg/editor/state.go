@@ -70,6 +70,8 @@ func (s *State) Update() statemachine.State {
 			s.windowFloors(ctx)
 		} else if s.tool.Name() == (ToolPolygon{}).Name() {
 			s.windowPolygons(ctx)
+		} else if s.tool.Name() == (ToolPolygonSelect{}).Name() {
+			s.windowPolygons(ctx)
 		}
 
 		s.windowOptions(ctx)
@@ -107,6 +109,14 @@ func (s *State) Update() statemachine.State {
 			s.pressX, s.pressY = x, y
 		}
 
+	}
+
+	if inpututil.IsKeyJustReleased(ebiten.KeyEscape) {
+		s.selectedFloorIndex = -1
+		s.selectedStaticIndex = -1
+		s.selectedPolygonIndex = -1
+		s.currentStax = ""
+		s.tool.Reset()
 	}
 
 	return nil
@@ -232,13 +242,15 @@ func (s *State) windowFile(ctx *debugui.Context) {
 func (s *State) windowTools(ctx *debugui.Context) {
 	ctx.Window("Tools", posTools.Rect(), func(resp debugui.Response, layout debugui.Layout) {
 		s.windowAreas["Tools"] = layout.Rect
-		ctx.SetLayoutRow([]int{80, 80, 80, 80}, 0)
+		ctx.SetLayoutRow([]int{80, 80, 80, 80, 80}, 0)
 		if ctx.Button(ToolNone{}.Name()) != 0 {
 			s.tool = &ToolNone{}
 		} else if ctx.Button(ToolStatic{}.Name()) != 0 {
 			s.tool = &ToolStatic{}
 		} else if ctx.Button(ToolPolygon{}.Name()) != 0 {
 			s.tool = &ToolPolygon{}
+		} else if ctx.Button(ToolPolygonSelect{}.Name()) != 0 {
+			s.tool = &ToolPolygonSelect{}
 		} else if ctx.Button(ToolFloor{}.Name()) != 0 {
 			s.tool = &ToolFloor{}
 		}
@@ -254,7 +266,7 @@ func (s *State) windowStaxies(ctx *debugui.Context) {
 				stax := s.place.Statics[s.selectedStaticIndex]
 				ctx.Label(fmt.Sprintf("Index: %d", s.selectedStaticIndex))
 
-				ctx.SetLayoutRow([]int{25, -1}, 0)
+				ctx.SetLayoutRow([]int{labelWidth, -1}, 0)
 				ctx.Label("Tag")
 				if ctx.TextBox(&stax.Tag)&debugui.ResponseSubmit != 0 {
 					ctx.SetFocus()
@@ -344,20 +356,20 @@ func (s *State) windowPolygons(ctx *debugui.Context) {
 					if ctx.Button(fmt.Sprintf("SubKind: %s", polygon.SubKind.String())) != 0 {
 						ctx.OpenPopup("Change SubKind")
 					}
-					ctx.SetLayoutRow([]int{25, -1}, 0)
+					ctx.SetLayoutRow([]int{labelWidth, -1}, 0)
 					ctx.Label("Msg")
 					if ctx.TextBox(&polygon.Text)&debugui.ResponseSubmit != 0 {
 						ctx.SetFocus()
 					}
 					ctx.SetLayoutRow([]int{-1}, 0)
 					if polygon.SubKind == res.PolygonInteractUse {
-						ctx.SetLayoutRow([]int{25, -1}, 0)
+						ctx.SetLayoutRow([]int{labelWidth, -1}, 0)
 						ctx.Label("Target")
 						if ctx.TextBox(&polygon.TargetTag)&debugui.ResponseSubmit != 0 {
 							ctx.SetFocus()
 						}
 						ctx.SetLayoutRow([]int{-1}, 0)
-						ctx.SetLayoutRow([]int{25, -1}, 0)
+						ctx.SetLayoutRow([]int{labelWidth, -1}, 0)
 						ctx.Label("TA")
 						if ctx.TextBox(&polygon.TargetAction)&debugui.ResponseSubmit != 0 {
 							ctx.SetFocus()
@@ -377,20 +389,20 @@ func (s *State) windowPolygons(ctx *debugui.Context) {
 					if ctx.Button(fmt.Sprintf("SubKind: %s", polygon.SubKind.String())) != 0 {
 						ctx.OpenPopup("Change SubKind")
 					}
-					ctx.SetLayoutRow([]int{25, -1}, 0)
+					ctx.SetLayoutRow([]int{labelWidth, -1}, 0)
 					ctx.Label("Travel")
 					if ctx.TextBox(&polygon.TargetTag)&debugui.ResponseSubmit != 0 {
 						ctx.SetFocus()
 					}
 					ctx.SetLayoutRow([]int{-1}, 0)
 				}
-				ctx.SetLayoutRow([]int{25, -1}, 0)
+				ctx.SetLayoutRow([]int{labelWidth, -1}, 0)
 				ctx.Label("ScriptFile")
 				if ctx.TextBox(&polygon.Script)&debugui.ResponseSubmit != 0 {
 					ctx.SetFocus()
 				}
 				ctx.SetLayoutRow([]int{-1}, 0)
-				ctx.SetLayoutRow([]int{25, -1}, 0)
+				ctx.SetLayoutRow([]int{labelWidth, -1}, 0)
 				ctx.Label("Tag")
 				if ctx.TextBox(&polygon.Tag)&debugui.ResponseSubmit != 0 {
 					ctx.SetFocus()
@@ -508,11 +520,13 @@ func (s *State) sortedStaxii(si map[string]res.StaxImage) []sortedStax {
 	return ss
 }
 
-var posFile = posSize{X: 10, Y: 10, W: 180, H: 54}
-var posTools = posSize{X: posFile.X + posFile.W + 10, Y: 10, W: 360, H: 54}
-var posToolItem = posSize{X: 10, Y: posFile.Y + posFile.H + 10, W: 180, H: 300}
-var posToolItemList = posSize{X: 10, Y: posToolItem.Y + posToolItem.H + 10, W: 180, H: 325}
+var posFile = posSize{X: 10, Y: 10, W: 200, H: 54}
+var posTools = posSize{X: posFile.X + posFile.W + 10, Y: 10, W: 440, H: 54}
+var posToolItem = posSize{X: 10, Y: posFile.Y + posFile.H + 10, W: 200, H: 300}
+var posToolItemList = posSize{X: 10, Y: posToolItem.Y + posToolItem.H + 10, W: 200, H: 325}
 var posOptions = posSize{X: 1060, Y: 10, W: 200, H: 300}
+
+const labelWidth = 45
 
 type posSize struct {
 	X int

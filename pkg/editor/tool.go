@@ -15,6 +15,7 @@ type Tool interface {
 	Button(s *State, b ebiten.MouseButton, pressed bool)
 	Move(s *State, x, y int)
 	Draw(screen *ebiten.Image, op *ebiten.DrawImageOptions)
+	Reset()
 }
 
 // ToolNone is a tool that does nothing.
@@ -36,6 +37,10 @@ func (t *ToolNone) Move(s *State, x, y int) {
 
 // Draw does nothing.
 func (t *ToolNone) Draw(screen *ebiten.Image, op *ebiten.DrawImageOptions) {
+}
+
+// Reset does nothing.
+func (t *ToolNone) Reset() {
 }
 
 // ToolPolygon creates polygonal areas
@@ -82,6 +87,50 @@ func (t *ToolPolygon) Draw(screen *ebiten.Image, op *ebiten.DrawImageOptions) {
 	}
 	// Draw a dot for the mouse pos
 	vector.DrawFilledCircle(screen, float32(t.cx)*scale+x, float32(t.cy)*scale+y, 2, color.White, true)
+}
+
+// Reset resets the tool.
+func (t *ToolPolygon) Reset() {
+	t.pending.Points = nil
+}
+
+// ToolPolygonSelect is a tool for selecting polygons.
+type ToolPolygonSelect struct {
+	x, y int
+}
+
+// Name returns the name of the tool.
+func (t ToolPolygonSelect) Name() string {
+	return "PolySel"
+}
+
+// Button handles mouse button presses.
+func (t *ToolPolygonSelect) Button(s *State, b ebiten.MouseButton, pressed bool) {
+	if b == ebiten.MouseButtonLeft && pressed {
+		s.selectedPolygonIndex = -1
+		for i, poly := range s.place.Polygons {
+			if poly.ContainsPoint(float64(t.x), float64(t.y)) {
+				s.selectedPolygonIndex = i
+				break
+			}
+		}
+	}
+}
+
+// Move handles mouse movement.
+func (t *ToolPolygonSelect) Move(s *State, x, y int) {
+	t.x, t.y = x, y
+}
+
+// Draw draws the tool.
+func (t *ToolPolygonSelect) Draw(screen *ebiten.Image, op *ebiten.DrawImageOptions) {
+	/*scale := float32(op.GeoM.Element(0, 0))
+	x := float32(op.GeoM.Element(0, 2))
+	y := float32(op.GeoM.Element(1, 2))*/
+}
+
+// Reset resets the tool.
+func (t *ToolPolygonSelect) Reset() {
 }
 
 // ToolStatic is a tool for placing staxii.
@@ -153,6 +202,12 @@ func (t *ToolStatic) Draw(screen *ebiten.Image, op *ebiten.DrawImageOptions) {
 	}
 }
 
+// Reset resets the tool.
+func (t *ToolStatic) Reset() {
+	t.draggingIndex = -1
+	t.pending.Name = ""
+}
+
 // ToolFloor is a tool for placing floors.
 type ToolFloor struct {
 	pending res.Static
@@ -202,4 +257,9 @@ func (t *ToolFloor) Move(s *State, x, y int) {
 func (t *ToolFloor) Draw(screen *ebiten.Image, op *ebiten.DrawImageOptions) {
 	op.ColorScale.ScaleAlpha(0.5)
 	t.pending.Draw(screen, op)
+}
+
+// Reset resets the tool.
+func (t *ToolFloor) Reset() {
+	t.pending.Name = ""
 }

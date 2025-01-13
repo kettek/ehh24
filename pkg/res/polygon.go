@@ -11,14 +11,17 @@ import (
 
 // Polygon represents a polygon, waoow.
 type Polygon struct {
-	Points       []image.Point
-	SubKind      PolygonSubKind
-	Kind         PolygonKind
+	Points  []image.Point
+	SubKind PolygonSubKind
+	Kind    PolygonKind
+	// We're just going to overload the polygon with everything. It's not pleasant, but it makes the code simpler and we don't have to finagle with type unmarshalling/marshalling or using shared field names.
 	Tag          string
 	TargetTag    string
 	TargetAction string
 	Script       string // Lookup script name, if applicable
 	Text         string // Text to display, if applicable
+	// Interact
+	UseTarget string
 }
 
 // PolygonKind represents the kind of a polygon.
@@ -125,7 +128,6 @@ func (p Polygon) ContainsPoint(x, y float64) bool {
 		py := float64(p.Points[i].Y)
 		qx := float64(p.Points[j].X)
 		qy := float64(p.Points[j].Y)
-		fmt.Println(x, y, px, py, qx, qy)
 		if ((py > y) != (qy > y)) && (x < (qx-px)*(y-py)/(qy-py)+px) {
 			isInside = !isInside
 		}
