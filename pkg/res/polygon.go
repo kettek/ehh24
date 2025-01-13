@@ -118,6 +118,21 @@ func (p Polygon) Draw(screen *ebiten.Image, op *ebiten.DrawImageOptions) {
 	}
 }
 
+func (p Polygon) ContainsPoint(x, y float64) bool {
+	isInside := false
+	for i, j := 0, len(p.Points)-1; i < len(p.Points); j, i = i, i+1 {
+		px := float64(p.Points[i].X)
+		py := float64(p.Points[i].Y)
+		qx := float64(p.Points[j].X)
+		qy := float64(p.Points[j].Y)
+		fmt.Println(x, y, px, py, qx, qy)
+		if ((py > y) != (qy > y)) && (x < (qx-px)*(y-py)/(qy-py)+px) {
+			isInside = !isInside
+		}
+	}
+	return isInside
+}
+
 var (
 	whiteImage = ebiten.NewImage(3, 3)
 

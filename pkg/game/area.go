@@ -11,18 +11,7 @@ type Area struct {
 }
 
 func (a *Area) ContainsPoint(x, y float64) bool {
-	isInside := false
-	// Calculate using original.
-	for i, j := 0, len(a.original.Points)-1; i < len(a.original.Points); j, i = i, i+1 {
-		px := float64(a.original.Points[i].X)
-		py := float64(a.original.Points[i].Y)
-		qx := float64(a.original.Points[j].X)
-		qy := float64(a.original.Points[j].Y)
-		if ((py > y) != (qy > y)) && (x < (qx-px)*(y-py)/(qy-py)+px) {
-			isInside = !isInside
-		}
-	}
-	return isInside
+	return a.original.ContainsPoint(x, y)
 }
 
 func (a *Area) Center() (float64, float64) {
